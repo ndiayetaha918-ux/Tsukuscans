@@ -6,6 +6,9 @@ import { resolve } from "node:path";
 // Tsuki Scans — installable PWA. The service worker pre-caches the app shell
 // and runtime-caches cover art so the home, feed and reader stay usable offline.
 export default defineConfig({
+  // Base is injected by CI so the app works under a project sub-path
+  // (e.g. GitHub Pages: /Tsukuscans/). Defaults to root for local dev/preview.
+  base: process.env.VITE_BASE || "/",
   resolve: {
     alias: { "@": resolve(process.cwd(), "src") },
   },
@@ -23,21 +26,19 @@ export default defineConfig({
         background_color: "#07070b",
         display: "standalone",
         orientation: "portrait",
-        scope: "/",
-        start_url: "/",
         categories: ["entertainment", "books"],
         icons: [
-          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png" },
+          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
-        navigateFallback: "/index.html",
+        navigateFallback: "index.html",
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.pathname.startsWith("/icons/"),
+            urlPattern: ({ url }) => url.pathname.includes("/icons/"),
             handler: "CacheFirst",
             options: { cacheName: "tsuki-icons", expiration: { maxEntries: 32 } },
           },

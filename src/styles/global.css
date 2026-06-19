@@ -1,0 +1,154 @@
+@import "./tokens.css";
+@import "./ui.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  font-feature-settings: "cv05" 1, "ss03" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+  /* The black is never flat: two faint lights bleed in from the corners,
+     so the surface reads as depth rather than a panel. */
+  background-image:
+    radial-gradient(70% 50% at 15% -10%, oklch(0.3 0.12 282 / 0.22), transparent 70%),
+    radial-gradient(60% 45% at 100% 0%, oklch(0.28 0.1 320 / 0.14), transparent 70%);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100dvh;
+  isolation: isolate;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-bright);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+::selection {
+  background: oklch(0.64 0.19 280 / 0.4);
+  color: var(--ink);
+}
+
+/* Hide scrollbars on rails but keep them functional */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slim, premium scrollbar elsewhere */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-3) transparent;
+}
+
+/* — Splash, removed once React mounts — */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-content: center;
+  gap: var(--s-4);
+  background: var(--bg-deep);
+  transition: opacity var(--dur-slow) var(--ease-out-expo);
+}
+#splash.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.splash-moon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--primary-bright), var(--primary-dim) 70%);
+  box-shadow: 0 0 60px oklch(0.6 0.18 282 / 0.55);
+  animation: moon-breathe 2.4s var(--ease-out-quint) infinite;
+}
+.splash-word {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  font-size: 0.8rem;
+  color: var(--ink-mute);
+  text-align: center;
+}
+@keyframes moon-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Utility: respect notches */
+.safe-top { padding-top: max(var(--s-4), env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(var(--s-4), env(safe-area-inset-bottom)); }

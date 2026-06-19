@@ -1,0 +1,158 @@
+.home__bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(var(--s-4), env(safe-area-inset-top)) var(--rail-gutter) var(--s-3);
+  background: linear-gradient(to bottom, var(--bg) 55%, transparent);
+}
+.home__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.32rem;
+  letter-spacing: -0.02em;
+}
+.home__brandmoon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, var(--primary-bright), var(--primary-dim) 70%);
+  box-shadow: 0 0 16px oklch(0.6 0.18 282 / 0.65);
+}
+.home__baractions { display: flex; align-items: center; gap: var(--s-3); }
+.home__avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: linear-gradient(140deg, oklch(0.5 0.16 318), oklch(0.45 0.16 262));
+  border: 1px solid var(--hairline-strong);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  margin: var(--s-2) var(--rail-gutter) var(--s-3);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  min-height: 460px;
+  display: flex;
+  align-items: flex-end;
+  box-shadow: 0 24px 70px oklch(0 0 0 / 0.6);
+}
+.hero__art {
+  position: absolute;
+  inset: 0;
+}
+.hero__art .cover { aspect-ratio: auto; height: 100%; border-radius: 0; }
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, oklch(0.03 0.01 280) 6%, transparent 56%),
+    linear-gradient(to right, oklch(0.03 0.01 280 / 0.7), transparent 60%);
+}
+.hero__body {
+  position: relative;
+  padding: var(--s-6);
+  max-width: 560px;
+}
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--s-3);
+}
+.hero__eyebrow svg { color: var(--warning); }
+.hero__title {
+  font-size: clamp(2.4rem, 9vw, 4rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  margin-bottom: var(--s-3);
+  text-shadow: 0 4px 30px oklch(0 0 0 / 0.6);
+}
+.hero__genres {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--s-2);
+}
+.hero__synopsis {
+  font-size: 1rem;
+  color: var(--ink-mute);
+  max-width: 46ch;
+  margin-bottom: var(--s-5);
+  text-wrap: pretty;
+}
+.hero__actions { display: flex; align-items: center; gap: var(--s-3); }
+.hero__actions .btn--solid { padding: 13px 22px; }
+.iconbtn--lg { width: 48px; height: 48px; }
+.iconbtn.is-on { color: var(--primary-bright); border-color: oklch(0.64 0.19 280 / 0.5); }
+.hero__ring { margin-left: auto; }
+@media (max-width: 560px) {
+  .hero { min-height: 420px; }
+  .hero__body { padding: var(--s-5); }
+  .hero__ring { display: none; }
+}
+
+/* ---------- Continue ---------- */
+.continue .rail__track { gap: var(--s-3); }
+.cont { flex: none; width: 230px; scroll-snap-align: start; }
+.cont__poster {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: 0 8px 22px oklch(0 0 0 / 0.5);
+}
+.cont__poster .cover { aspect-ratio: auto; height: 100%; }
+.cont__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink);
+  background: oklch(0.1 0.01 280 / 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--hairline-strong);
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+.cont:hover .cont__play { transform: scale(1.1); }
+.cont__bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 4px;
+  background: oklch(1 0 0 / 0.16);
+}
+.cont__bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-bright), oklch(0.7 0.2 318));
+  box-shadow: 0 0 10px oklch(0.6 0.18 282 / 0.7);
+}
+.cont__meta { display: flex; flex-direction: column; margin-top: var(--s-2); padding-inline: 2px; }
+.cont__t { font-size: 0.9rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cont__c { font-size: 0.76rem; color: var(--ink-mute); }
+
+.home__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-7) var(--rail-gutter) var(--s-6);
+  color: var(--ink-ghost);
+  font-size: 0.82rem;
+}

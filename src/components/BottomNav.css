@@ -1,0 +1,70 @@
+.dock {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: var(--z-nav);
+  padding: 6px;
+  border-radius: var(--r-pill);
+  background: oklch(0.1 0.01 280 / 0.7);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: 0 12px 40px oklch(0 0 0 / 0.6), 0 1px 0 oklch(1 0 0 / 0.06) inset;
+}
+.dock__list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.dock__item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  width: 60px;
+  padding: 9px 0 7px;
+  border-radius: var(--r-lg);
+  color: var(--ink-faint);
+  transition: color var(--dur-fast) var(--ease-out-quint);
+}
+.dock__item .dock__label {
+  font-size: 0.6rem;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+.dock__item.is-active { color: var(--ink); }
+.dock__item.is-active::before {
+  content: "";
+  position: absolute;
+  inset: 4px 8px;
+  border-radius: var(--r-md);
+  background: oklch(0.64 0.19 280 / 0.16);
+  z-index: -1;
+}
+@media (hover: hover) {
+  .dock__item:hover { color: var(--ink-soft); }
+}
+
+/* The hero (Discover) item is the moon: it pulls focus. */
+.dock__item--hero .dock__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+}
+.dock__item--hero.is-active .dock__icon,
+.dock__item--hero .dock__icon {
+  color: var(--ink);
+}
+.dock__item--hero.is-active::before {
+  inset: 2px 6px;
+  background: radial-gradient(circle at 50% 40%, oklch(0.64 0.19 280 / 0.4), oklch(0.64 0.19 280 / 0.08));
+  box-shadow: 0 0 24px oklch(0.6 0.18 282 / 0.5);
+}
+
+@media (min-width: 900px) {
+  .dock { padding: 7px; }
+  .dock__item { width: 76px; }
+  .dock__item .dock__label { font-size: 0.66rem; }
+}

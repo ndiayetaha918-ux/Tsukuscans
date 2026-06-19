@@ -1,0 +1,23 @@
+.compat {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.compat__svg {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 0 6px oklch(0.62 0.19 278 / 0.4));
+}
+.compat__num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1;
+}
+.compat__pct {
+  font-size: 0.62em;
+  color: var(--ink-mute);
+  margin-left: 0.5px;
+}

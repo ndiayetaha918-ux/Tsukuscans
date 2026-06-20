@@ -26,6 +26,9 @@ export function Detail() {
   const titles = manga.data?.searchTitles;
   const chapters = useAsync(titles?.length ? `chapters-${id}` : null, () => findChapters(titles!));
 
+  const setAmbient = useStore((s) => s.setAmbient);
+  useEffect(() => { if (manga.data) setAmbient(manga.data.color, manga.data.id); }, [manga.data, setAmbient]);
+
   if (manga.error) {
     return (
       <div className="page detail-missing">

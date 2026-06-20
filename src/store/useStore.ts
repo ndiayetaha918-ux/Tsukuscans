@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { Manga, TasteSeed } from "@/lib/types";
 
 export type ReaderMode = "vertical" | "paged" | "double";
+export type ReadDir = "ltr" | "rtl";
 export type AutoSpeed = 0.5 | 0.75 | 1 | 1.25 | 1.5 | 2;
 export type AuthMethod = "google" | "discord" | "guest" | null;
 
@@ -19,9 +20,18 @@ export interface ProgressEntry {
 
 export interface ReaderSettings {
   mode: ReaderMode;
+  direction: ReadDir; // page-by-page reading direction (RTL = japonais)
   autoSpeed: AutoSpeed;
   smartAuto: boolean;
 }
+
+/** Per-work reading preference, so each title reopens exactly how you left it. */
+export interface WorkReader {
+  mode: ReaderMode;
+  direction: ReadDir;
+}
+
+const DEFAULT_READER: ReaderSettings = { mode: "vertical", direction: "rtl", autoSpeed: 1, smartAuto: true };
 
 function seedOf(m: Manga): TasteSeed {
   return { id: m.id, title: m.title, coverThumb: m.coverThumb, genres: m.genres, tags: m.tags };
@@ -38,6 +48,11 @@ interface State {
   finished: string[];
   progress: Record<string, ProgressEntry>;
   reader: ReaderSettings;
+  workReader: Record<string, WorkReader>;
+
+  // transient — the colour currently lighting the room
+  ambientColor?: string;
+  ambientId?: string;
 
   setHydrated(): void;
   completeOnboarding(picks: TasteSeed[], auth: AuthMethod, name?: string): void;
@@ -46,6 +61,8 @@ interface State {
   markFinished(id: string): void;
   setProgress(mangaId: string, entry: ProgressEntry): void;
   updateReader(patch: Partial<ReaderSettings>): void;
+  setWorkReader(id: string, patch: Partial<WorkReader>): void;
+  setAmbient(color?: string, id?: string): void;
   resetAll(): void;
 }
 
@@ -60,7 +77,10 @@ export const useStore = create<State>()(
       favorites: [],
       finished: [],
       progress: {},
-      reader: { mode: "vertical", autoSpeed: 1, smartAuto: true },
+      reader: DEFAULT_READER,
+      workReader: {},
+      ambientColor: undefined,
+      ambientId: undefined,
 
       setHydrated: () => set({ hydrated: true }),
 
@@ -84,10 +104,15 @@ export const useStore = create<State>()(
 
       updateReader: (patch) => set((s) => ({ reader: { ...s.reader, ...patch } })),
 
+      setWorkReader: (id, patch) =>
+        set((s) => ({ workReader: { ...s.workReader, [id]: { ...(s.workReader[id] ?? { mode: s.reader.mode, direction: s.reader.direction }), ...patch } } })),
+
+      setAmbient: (color, id) => set({ ambientColor: color, ambientId: id }),
+
       resetAll: () =>
         set({
           onboarded: false, auth: null, displayName: null, picks: [], favorites: [],
-          finished: [], progress: {}, reader: { mode: "vertical", autoSpeed: 1, smartAuto: true },
+          finished: [], progress: {}, reader: DEFAULT_READER, workReader: {},
         }),
     }),
     {
@@ -101,6 +126,7 @@ export const useStore = create<State>()(
         finished: s.finished,
         progress: s.progress,
         reader: s.reader,
+        workReader: s.workReader,
       }),
       onRehydrateStorage: () => (state) => state?.setHydrated(),
     },

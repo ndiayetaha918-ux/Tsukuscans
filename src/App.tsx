@@ -11,7 +11,7 @@ import { Profile } from "@/screens/Profile";
 import { Detail } from "@/screens/Detail";
 import { Reader } from "@/screens/Reader";
 import { OfflineBadge } from "@/components/OfflineBadge";
-import { Ambient } from "@/components/Ambient";
+import { LightField } from "@/components/LightField";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -32,7 +32,7 @@ export default function App() {
   if (!onboarded) {
     return (
       <>
-        <Ambient />
+        <LightField />
         <Onboarding />
       </>
     );
@@ -40,7 +40,7 @@ export default function App() {
 
   return (
     <>
-      <Ambient />
+      <LightField />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />

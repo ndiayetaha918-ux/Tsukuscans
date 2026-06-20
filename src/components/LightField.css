@@ -1,0 +1,70 @@
+.lightfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* The colour vars transition smoothly when the focal content changes. */
+  transition: none;
+}
+.lf {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  will-change: transform;
+  transition: background var(--dur-slow) var(--ease-out-expo);
+}
+
+/* FAR — a huge dominant wash that fills the whole field, low and slow. */
+.lf--wash {
+  width: 150vmax;
+  height: 150vmax;
+  left: 50%;
+  top: 8%;
+  transform: translate(-50%, -30%);
+  background: radial-gradient(circle, var(--lf-dom), transparent 58%);
+  filter: blur(90px);
+  opacity: 0.85;
+  animation: lf-wash 26s ease-in-out infinite alternate;
+}
+/* MID — two blooms, different hues / positions / phases → volume, not a halo. */
+.lf--bloom1 {
+  width: 95vw;
+  height: 95vw;
+  left: -30vw;
+  top: 30vh;
+  background: radial-gradient(circle, var(--lf-sec1), transparent 60%);
+  filter: blur(80px);
+  animation: lf-b1 19s ease-in-out infinite alternate;
+}
+.lf--bloom2 {
+  width: 80vw;
+  height: 80vw;
+  right: -28vw;
+  top: -10vh;
+  background: radial-gradient(circle, var(--lf-sec2), transparent 62%);
+  filter: blur(90px);
+  animation: lf-b2 23s ease-in-out infinite alternate;
+}
+/* NEAR — a bright, tighter spill, the most saturated point of light. */
+.lf--spill {
+  width: 60vw;
+  height: 42vh;
+  left: 18vw;
+  top: 6vh;
+  background: radial-gradient(60% 100% at 50% 40%, var(--lf-acc), transparent 66%);
+  filter: blur(60px);
+  opacity: 0.9;
+  animation: lf-spill 31s ease-in-out infinite alternate;
+}
+
+@keyframes lf-wash { from { transform: translate(-50%, -30%) scale(1); } to { transform: translate(-46%, -24%) scale(1.12); } }
+@keyframes lf-b1 { from { transform: translate(0, 0) scale(1); } to { transform: translate(12vw, -8vh) scale(1.16); } }
+@keyframes lf-b2 { from { transform: translate(0, 0) scale(1); } to { transform: translate(-10vw, 9vh) scale(1.12); } }
+@keyframes lf-spill { from { transform: translate(0, 0) scale(1); opacity: 0.7; } to { transform: translate(8vw, 6vh) scale(1.2); opacity: 1; } }
+
+/* Comfort: for long sessions, motion calms and the field stills on request. */
+@media (prefers-reduced-motion: reduce) {
+  .lf { animation: none !important; }
+  .lf--bloom1, .lf--bloom2, .lf--spill { opacity: 0.5; }
+}

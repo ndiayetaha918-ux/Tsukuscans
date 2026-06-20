@@ -1,8 +1,23 @@
 .mcard {
+  position: relative;
   display: block;
   flex: none;
   scroll-snap-align: start;
   transition: transform var(--dur-mid) var(--ease-out-quint);
+}
+/* Subtle colour glow emanating from the card, keyed to the cover's hue. */
+.mcard__glow {
+  position: absolute;
+  inset: 8% 6% 2%;
+  z-index: -1;
+  border-radius: var(--r-lg);
+  background: var(--card-color, var(--primary));
+  filter: blur(22px);
+  opacity: 0.18;
+  transition: opacity var(--dur-mid) var(--ease-out-quint), transform var(--dur-mid) var(--ease-out-quint);
+}
+@media (hover: hover) {
+  .mcard:hover .mcard__glow { opacity: 0.5; transform: translateY(4px) scale(1.04); }
 }
 .mcard__poster {
   position: relative;

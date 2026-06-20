@@ -47,6 +47,7 @@ const MEDIA_FIELDS = `
   popularity
   status
   startDate { year }
+  trailer { id site }
   staff(perPage: 1, sort: [RELEVANCE]) { nodes { name { full } } }
 `;
 
@@ -60,11 +61,14 @@ async function gql<T>(query: string, variables: Record<string, unknown>, cacheKe
 
   let lastErr: unknown;
   for (let attempt = 0; attempt < 3; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ query, variables }),
+        signal: ctrl.signal,
       });
       if (res.status === 429) { await delay(1200); continue; } // rate limit
       if (!res.ok) throw new Error(`AniList ${res.status}`);
@@ -74,6 +78,8 @@ async function gql<T>(query: string, variables: Record<string, unknown>, cacheKe
     } catch (e) {
       lastErr = e;
       if (attempt < 2) await delay(500);
+    } finally {
+      clearTimeout(timer);
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error("AniList indisponible");
@@ -90,6 +96,7 @@ interface AniMedia {
   popularity: number | null;
   status: string | null;
   startDate: { year: number | null } | null;
+  trailer: { id: string | null; site: string | null } | null;
   staff: { nodes: { name: { full: string | null } }[] } | null;
 }
 
@@ -114,35 +121,40 @@ function mapMedia(m: AniMedia): Manga {
     coverThumb: m.coverImage.large || m.coverImage.extraLarge || undefined,
     banner: m.bannerImage || undefined,
     color: m.coverImage.color || undefined,
+    trailer: m.trailer?.id && m.trailer.site ? { id: m.trailer.id, site: m.trailer.site } : undefined,
   };
 }
 
-async function page(sort: string, extra: Record<string, unknown>, perPage: number, key: string): Promise<Manga[]> {
-  const query = `query($perPage:Int,$sort:[MediaSort]${extra.genre !== undefined ? ",$genre:String" : ""}${extra.search !== undefined ? ",$search:String" : ""}) {
-    Page(page:1, perPage:$perPage) {
+async function fetchPage(sort: string, extra: Record<string, unknown>, perPage: number, pageNum: number, key: string): Promise<Manga[]> {
+  const query = `query($page:Int,$perPage:Int,$sort:[MediaSort]${extra.genre !== undefined ? ",$genre:String" : ""}${extra.search !== undefined ? ",$search:String" : ""}) {
+    Page(page:$page, perPage:$perPage) {
       media(type: MANGA, sort: $sort, isAdult: false${extra.genre !== undefined ? ", genre:$genre" : ""}${extra.search !== undefined ? ", search:$search" : ""}) { ${MEDIA_FIELDS} }
     }
   }`;
-  const data = await gql<{ Page: { media: AniMedia[] } }>(query, { perPage, sort: [sort], ...extra }, key);
+  const data = await gql<{ Page: { media: AniMedia[] } }>(query, { page: pageNum, perPage, sort: [sort], ...extra }, key);
   return data.Page.media.map(mapMedia);
 }
 
-export function listPopular(limit = 24): Promise<Manga[]> {
-  return page("POPULARITY_DESC", {}, limit, `ani-popular-${limit}`);
+export function listPopular(limit = 24, pageNum = 1): Promise<Manga[]> {
+  return fetchPage("POPULARITY_DESC", {}, limit, pageNum, `ani-popular-${limit}-${pageNum}`);
 }
-export function listTrending(limit = 20): Promise<Manga[]> {
-  return page("TRENDING_DESC", {}, limit, `ani-trending-${limit}`);
+export function listTrending(limit = 20, pageNum = 1): Promise<Manga[]> {
+  return fetchPage("TRENDING_DESC", {}, limit, pageNum, `ani-trending-${limit}-${pageNum}`);
 }
-export function listRecent(limit = 18): Promise<Manga[]> {
-  return page("START_DATE_DESC", {}, limit, `ani-recent-${limit}`);
+export function listRecent(limit = 18, pageNum = 1): Promise<Manga[]> {
+  return fetchPage("START_DATE_DESC", {}, limit, pageNum, `ani-recent-${limit}-${pageNum}`);
 }
-export function listByGenre(genre: string, limit = 18): Promise<Manga[]> {
-  return page("POPULARITY_DESC", { genre }, limit, `ani-genre-${genre}-${limit}`);
+export function listByGenre(genre: string, limit = 18, pageNum = 1): Promise<Manga[]> {
+  return fetchPage("POPULARITY_DESC", { genre }, limit, pageNum, `ani-genre-${genre}-${limit}-${pageNum}`);
 }
+export function listTopRated(limit = 18, pageNum = 1): Promise<Manga[]> {
+  return fetchPage("SCORE_DESC", {}, limit, pageNum, `ani-top-${limit}-${pageNum}`);
+}
+/** Search ALWAYS returns AniList relevance order (best/exact match first). */
 export function searchManga(q: string, limit = 30): Promise<Manga[]> {
   const query = q.trim();
   if (!query) return listPopular(limit);
-  return page("SEARCH_MATCH", { search: query }, limit, `ani-search-${query}-${limit}`);
+  return fetchPage("SEARCH_MATCH", { search: query }, limit, 1, `ani-search-${query}-${limit}`);
 }
 
 export async function getManga(id: string): Promise<Manga> {

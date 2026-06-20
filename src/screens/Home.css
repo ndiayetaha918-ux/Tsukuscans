@@ -21,8 +21,21 @@
 }
 
 /* ---------- Hero (16:9 cinematic, real cover) ---------- */
+.hero-wrap { position: relative; }
+/* Contextual lighting: a soft aura tinted by the cover's dominant colour,
+   bleeding past the hero card into the page margins. */
+.hero__ctxglow {
+  position: absolute;
+  inset: 14% 4px -2% 4px;
+  z-index: 0;
+  background: radial-gradient(60% 65% at 50% 45%, var(--ctx, var(--primary)), transparent 72%);
+  filter: blur(48px);
+  opacity: 0.42;
+  pointer-events: none;
+}
 .hero {
   position: relative;
+  z-index: 1;
   margin: var(--s-2) var(--rail-gutter) var(--s-3);
   border-radius: var(--r-xl);
   overflow: hidden;

@@ -17,6 +17,7 @@ export interface Manga {
   coverThumb?: string; // medium
   banner?: string; // wide 16:9 art (AniList bannerImage)
   color?: string; // dominant cover colour (hex) for placeholders
+  trailer?: { id: string; site: string }; // e.g. { id, site: "youtube" }
   contentRating?: string;
 }
 

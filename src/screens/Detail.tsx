@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getManga } from "@/lib/anilist";
 import { findChaptersByTitle } from "@/lib/mangadex";
@@ -51,11 +51,16 @@ export function Detail() {
   const score = compatibility(m, taste);
   const fav = isFavorite(m.id);
   const chs = chapters.data ?? [];
+  const ctx = m.color ? ({ ["--ctx" as string]: m.color } as React.CSSProperties) : undefined;
 
   return (
-    <div className="detail page">
+    <div className="detail page" style={ctx}>
+      <div className="detail__ctxglow" />
       <div className="detail__hero">
-        <div className="detail__heroart"><Cover manga={m} shape="hero" priority /></div>
+        <div className="detail__heroart">
+          <Cover manga={m} shape="hero" priority />
+          <TrailerOverlay trailer={m.trailer} />
+        </div>
         <div className="detail__heroscrim" />
         <button className="iconbtn detail__back" onClick={() => navigate(-1)} aria-label="Retour"><ChevronLeft /></button>
         <div className="detail__heroinfo">
@@ -98,7 +103,12 @@ export function Detail() {
         {chapters.loading ? (
           <div className="chlist">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} style={{ height: 58, marginBottom: 8 }} />)}</div>
         ) : chs.length === 0 ? (
-          <p className="detail__nochap">Lecture indisponible pour cette œuvre pour le moment.</p>
+          <div className="detail__nochap">
+            <p>Lecture intégrée indisponible pour cette œuvre (source injoignable).</p>
+            <a className="btn btn--ghost" href={`https://mangadex.org/search?q=${encodeURIComponent(m.title)}`} target="_blank" rel="noopener noreferrer">
+              Chercher sur MangaDex ↗
+            </a>
+          </div>
         ) : (
           <ul className="chlist">
             {chs.map((c) => {
@@ -119,6 +129,31 @@ export function Detail() {
           </ul>
         )}
       </section>
+    </div>
+  );
+}
+
+/* Plays the work's most relevant YouTube trailer (from AniList) over the hero
+   after a few seconds — muted, looping, like a streaming detail page. */
+function TrailerOverlay({ trailer }: { trailer?: { id: string; site: string } }) {
+  const [show, setShow] = useState(false);
+  const isYouTube = trailer?.site?.toLowerCase() === "youtube" && trailer.id;
+  useEffect(() => {
+    if (!isYouTube) return;
+    const t = setTimeout(() => setShow(true), 3800);
+    return () => clearTimeout(t);
+  }, [isYouTube, trailer?.id]);
+  if (!isYouTube || !show) return null;
+  const src = `https://www.youtube-nocookie.com/embed/${trailer!.id}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailer!.id}&modestbranding=1&playsinline=1&rel=0&showinfo=0`;
+  return (
+    <div className="detail__trailer">
+      <iframe
+        src={src}
+        title="Bande-annonce"
+        allow="autoplay; encrypted-media"
+        frameBorder="0"
+        loading="lazy"
+      />
     </div>
   );
 }

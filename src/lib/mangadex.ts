@@ -13,10 +13,16 @@ const PROXIES = [
 ];
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function rawFetch<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error(`MangaDex ${res.status}`);
-  return (await res.json()) as T;
+async function rawFetch<T>(url: string, timeout = 6000): Promise<T> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeout);
+  try {
+    const res = await fetch(url, { headers: { Accept: "application/json" }, signal: ctrl.signal });
+    if (!res.ok) throw new Error(`MangaDex ${res.status}`);
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 async function getJSON<T>(url: string): Promise<T> {
@@ -45,11 +51,8 @@ async function findMangaId(title: string): Promise<string | null> {
   return j.data[0]?.id ?? null;
 }
 
-/** Chapters (EN, deduped) for a title. Empty array if the title isn't on MangaDex. */
-export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
-  const id = await findMangaId(title);
-  if (!id) return [];
-  const url = `${API}/manga/${id}/feed?translatedLanguage[]=en&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=200&includes[]=scanlation_group`;
+async function feed(id: string, lang: string): Promise<Chapter[]> {
+  const url = `${API}/manga/${id}/feed?translatedLanguage[]=${lang}&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=200&includes[]=scanlation_group`;
   const j = await getJSON<MDList<MDChapter>>(url);
   const seen = new Set<string>();
   const out: Chapter[] = [];
@@ -69,6 +72,16 @@ export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
     });
   }
   return out;
+}
+
+/** Chapters for a title, preferring French scans (e.g. colour manhwa teams
+ *  like Little Garden) and falling back to English. Empty if not on MangaDex. */
+export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
+  const id = await findMangaId(title);
+  if (!id) return [];
+  const fr = await feed(id, "fr");
+  if (fr.length > 0) return fr;
+  return feed(id, "en");
 }
 
 /** Full page image URLs for a chapter via the at-home server. */

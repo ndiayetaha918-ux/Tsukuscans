@@ -192,8 +192,13 @@ export function Reader() {
   if (chapters.error || (chapters.data && chapters.data.length === 0)) {
     return (
       <div className="reader-missing">
-        <p>Aucun chapitre lisible pour cette œuvre.</p>
-        <button className="btn btn--ghost" onClick={() => navigate(`/title/${id}`)}>Retour</button>
+        <p>Lecture intégrée indisponible (source injoignable).</p>
+        <div style={{ display: "flex", gap: "var(--s-3)" }}>
+          {manga.data?.title && (
+            <a className="btn btn--primary" href={`https://mangadex.org/search?q=${encodeURIComponent(manga.data.title)}`} target="_blank" rel="noopener noreferrer">Lire sur MangaDex ↗</a>
+          )}
+          <button className="btn btn--ghost" onClick={() => navigate(`/title/${id}`)}>Retour</button>
+        </div>
       </div>
     );
   }

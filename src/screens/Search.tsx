@@ -27,8 +27,12 @@ export function Search() {
   const results = useMemo(() => {
     const list = data ?? [];
     const filtered = genres.length ? list.filter((m) => genres.every((g) => m.genres.includes(g))) : list;
-    return filtered.map((m) => ({ m, s: compatibility(m, taste) })).sort((a, b) => b.s - a.s);
-  }, [data, genres, taste]);
+    const scored = filtered.map((m) => ({ m, s: compatibility(m, taste) }));
+    // With a query, AniList already ranks by relevance (exact match first) —
+    // keep that order. Only re-rank by taste when simply browsing.
+    if (!debounced) scored.sort((a, b) => b.s - a.s);
+    return scored;
+  }, [data, genres, taste, debounced]);
 
   function toggleGenre(g: string) {
     setGenres((cur) => (cur.includes(g) ? cur.filter((x) => x !== g) : [...cur, g]));

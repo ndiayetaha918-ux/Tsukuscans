@@ -14,13 +14,18 @@ export function MangaCard({
   compat?: number;
   showTitle?: boolean;
 }) {
+  const style = {
+    ...(width ? { width } : {}),
+    ...(manga.color ? { ["--card-color" as string]: manga.color } : {}),
+  } as React.CSSProperties;
   return (
     <Link
       to={`/title/${manga.id}`}
       className="mcard"
-      style={width ? { width } : undefined}
+      style={style}
       aria-label={manga.title}
     >
+      <span className="mcard__glow" aria-hidden="true" />
       <div className="mcard__poster">
         <Cover manga={manga} shape="thumb" />
         {compat != null && <span className="mcard__compat">{compat}%</span>}

@@ -1,12 +1,10 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility, dedupe } from "@/lib/recommend";
-import { listPopular, listByGenre, GENRES } from "@/lib/anilist";
-import { useAsync } from "@/lib/useAsync";
+import { listTrending, listByGenre, GENRES } from "@/lib/anilist";
 import { Cover } from "@/components/Cover";
 import { CompatRing } from "@/components/CompatRing";
-import { Skeleton } from "@/components/Skeleton";
 import { HeartIcon, PlayIcon, PlusIcon, CheckIcon, ChevronDown } from "@/components/Icons";
 import type { Manga } from "@/lib/types";
 import "./Discover.css";
@@ -16,36 +14,81 @@ const genreId = (name: string) => GENRES.find((g) => g.name === name)?.value;
 export function Discover() {
   const picks = useStore((s) => s.picks);
   const favorites = useStore((s) => s.favorites);
+  const finished = useStore((s) => s.finished);
+  const progress = useStore((s) => s.progress);
   const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
   const leadId = genreId(taste.topGenres.find((g) => genreId(g)) ?? "Action")!;
 
-  const popular = useAsync("feed-popular", () => listPopular(40));
-  const genre = useAsync(`feed-${leadId}`, () => listByGenre(leadId, 30));
+  const seen = useMemo(
+    () => new Set<string>([...picks.map((p) => p.id), ...favorites.map((f) => f.id), ...finished, ...Object.keys(progress)]),
+    [picks, favorites, finished, progress],
+  );
 
-  const feed = useMemo(() => {
-    if (!popular.data && !genre.data) return undefined;
-    const merged = dedupe([genre.data ?? [], popular.data ?? []]);
-    // weighted shuffle: compatibility decides odds, randomness keeps it alive
-    return merged
-      .map((m) => ({ m, k: compatibility(m, taste) + Math.random() * 28 }))
-      .sort((a, b) => b.k - a.k)
-      .map((x) => x.m);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [popular.data, genre.data]);
+  const [items, setItems] = useState<Manga[]>([]);
+  const [done, setDone] = useState(false);
+  const [errored, setErrored] = useState(false);
+  const pageNum = useRef(1);
+  const loading = useRef(false);
+  const loadedIds = useRef(new Set<string>());
+  const feedRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  if (!feed) {
+  const loadMore = useCallback(async () => {
+    if (loading.current || done) return;
+    loading.current = true;
+    try {
+      const p = pageNum.current;
+      const [a, b] = await Promise.all([
+        listTrending(20, p).catch(() => [] as Manga[]),
+        listByGenre(leadId, 20, p).catch(() => [] as Manga[]),
+      ]);
+      if (a.length === 0 && b.length === 0) {
+        if (items.length === 0) setErrored(true);
+        setDone(true);
+        return;
+      }
+      const batch = dedupe([a, b]).filter((m) => !seen.has(m.id) && !loadedIds.current.has(m.id));
+      batch.forEach((m) => loadedIds.current.add(m.id));
+      const ordered = batch
+        .map((m) => ({ m, k: compatibility(m, taste) + Math.random() * 26 }))
+        .sort((x, y) => y.k - x.k)
+        .map((x) => x.m);
+      setItems((prev) => [...prev, ...ordered]);
+      pageNum.current = p + 1;
+    } finally {
+      loading.current = false;
+    }
+  }, [done, leadId, seen, taste, items.length]);
+
+  useEffect(() => { if (items.length === 0) loadMore(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) loadMore(); },
+      { root: feedRef.current, rootMargin: "1200px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadMore]);
+
+  if (errored && items.length === 0) {
     return (
-      <div className="feed feed--loading">
-        <div className="fcard"><Skeleton style={{ position: "absolute", inset: 0, borderRadius: 0 }} /></div>
+      <div className="feed feed--msg">
+        <p>La découverte n'a pas pu se charger.</p>
+        <button className="btn btn--primary" onClick={() => { setErrored(false); setDone(false); loadMore(); }}>Réessayer</button>
       </div>
     );
   }
 
   return (
-    <div className="feed" aria-label="Feed de découverte">
-      {feed.map((m, i) => (
+    <div className="feed" aria-label="Feed de découverte" ref={feedRef}>
+      {items.map((m, i) => (
         <FeedCard key={m.id} manga={m} score={compatibility(m, taste)} first={i === 0} />
       ))}
+      <div ref={sentinelRef} className="feed__sentinel" aria-hidden="true" />
+      {items.length === 0 && <div className="fcard feed__loadcard"><span className="feed__spinner" /></div>}
     </div>
   );
 }
@@ -54,9 +97,10 @@ function FeedCard({ manga, score, first }: { manga: Manga; score: number; first:
   const isFavorite = useStore((s) => s.isFavorite);
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const fav = isFavorite(manga.id);
+  const ctx = manga.color ? ({ ["--ctx" as string]: manga.color } as React.CSSProperties) : undefined;
 
   return (
-    <section className="fcard" aria-label={manga.title}>
+    <section className="fcard" aria-label={manga.title} style={ctx}>
       <div className="fcard__bg"><Cover manga={manga} shape="hero" /></div>
       <div className="fcard__scrim" />
 
@@ -74,7 +118,7 @@ function FeedCard({ manga, score, first }: { manga: Manga; score: number; first:
         <Link to={`/title/${manga.id}`} className="fcard__title">{manga.title}</Link>
         {manga.synopsis && <p className="fcard__syn">{clamp(manga.synopsis, 160)}</p>}
         <div className="fcard__cta">
-          <Link to={`/reader/${manga.id}`} className="btn btn--solid"><PlayIcon width={18} height={18} /> Commencer</Link>
+          <Link to={`/title/${manga.id}`} className="btn btn--solid"><PlayIcon width={18} height={18} /> Découvrir</Link>
           <button className={`btn btn--ghost${fav ? " is-on" : ""}`} onClick={() => toggleFavorite(manga)}>
             {fav ? <CheckIcon width={18} height={18} /> : <PlusIcon width={18} height={18} />}{fav ? "Dans ma liste" : "Ma liste"}
           </button>

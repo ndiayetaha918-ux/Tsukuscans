@@ -20,6 +20,10 @@
   gap: var(--s-3);
   overflow-x: auto;
   padding-inline: var(--rail-gutter);
+  padding-block: var(--s-2);
   scroll-snap-type: x proximity;
   scroll-padding-left: var(--rail-gutter);
 }
+.rail--big { margin-block: var(--s-7); }
+.rail--big .rail__track { gap: var(--s-4); }
+.rail--big .rail__title { font-size: 1.34rem; }

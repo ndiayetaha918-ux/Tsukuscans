@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
-import { buildTaste, compatibility } from "@/lib/recommend";
-import { listTrending, listRecent, listByGenre, GENRES } from "@/lib/anilist";
+import { buildTaste, compatibility, dedupe } from "@/lib/recommend";
+import { listTrending, listRecent, listByGenre, listTopRated, GENRES } from "@/lib/anilist";
 import { useAsync } from "@/lib/useAsync";
 import { Rail } from "@/components/Rail";
 import { Cover } from "@/components/Cover";
@@ -26,31 +26,55 @@ export function Home() {
 
   const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
 
-  // Personalised lead genre (falls back gracefully on cold start).
-  const leadGenre = taste.topGenres.find((g) => genreId(g)) ?? "Action";
-  const leadId = genreId(leadGenre)!;
+  // Everything the user already chose / is reading is excluded from discovery.
+  const seen = useMemo(
+    () => new Set<string>([...picks.map((p) => p.id), ...favorites.map((f) => f.id), ...finished, ...Object.keys(progress)]),
+    [picks, favorites, finished, progress],
+  );
 
-  const recommended = useAsync(`rec-${leadId}`, () => listByGenre(leadId, 18));
-  const trending = useAsync("trending", () => listTrending(20));
-  const recent = useAsync("recent", () => listRecent(18));
+  const topGenres = taste.topGenres.filter((g) => genreId(g));
+  const leadGenre = topGenres[0] ?? "Action";
+  const secondGenre = topGenres[1] ?? (leadGenre === "Aventure" ? "Action" : "Aventure");
 
-  const genreRails = useMemo(() => {
-    const names = (taste.topGenres.filter((g) => genreId(g)).slice(0, 4));
-    while (names.length < 3) {
-      const fill = ["Fantasy", "Romance", "Aventure", "Action"].find((g) => !names.includes(g))!;
-      names.push(fill);
-    }
-    return names;
-  }, [taste.topGenres]);
+  const recA = useAsync(`rec-${genreId(leadGenre)}`, () => listByGenre(genreId(leadGenre)!, 24));
+  const recB = useAsync(`rec-${genreId(secondGenre)}`, () => listByGenre(genreId(secondGenre)!, 24));
+  const trending = useAsync("trending", () => listTrending(22));
+  const recent = useAsync("recent", () => listRecent(20));
+  const gems = useAsync("gems", () => listTopRated(22));
 
-  const hero = recommended.data?.[0] ?? trending.data?.[0];
+  // Recommended = blend of the two lead genres, seen filtered out, weighted-
+  // shuffled by compatibility so it varies between visits.
+  const recommended = useMemo(() => {
+    if (!recA.data && !recB.data) return undefined;
+    const merged = dedupe([recA.data ?? [], recB.data ?? []], seen);
+    return merged
+      .map((m) => ({ m, k: compatibility(m, taste) + Math.random() * 22 }))
+      .sort((a, b) => b.k - a.k)
+      .map((x) => x.m)
+      .slice(0, 16);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recA.data, recB.data, seen]);
+
+  const clean = (list?: Manga[]) => (list ? list.filter((m) => !seen.has(m.id)) : list);
+
+  const anchor = picks[0] ?? favorites[0];
+  const anchorGenre = anchor?.genres?.find((g) => genreId(g));
+  const because = useAsync(anchorGenre ? `because-${genreId(anchorGenre)}` : null, () => listByGenre(genreId(anchorGenre!)!, 20));
+
+  const hero = useMemo(() => {
+    const pool = recommended ?? trending.data ?? [];
+    if (!pool.length) return undefined;
+    return pool[Math.floor(Math.random() * Math.min(3, pool.length))];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recommended, trending.data]);
+
+  const otherGenres = useMemo(() => {
+    const base = [...topGenres, "Fantasy", "Romance", "Psychologique", "Action", "Aventure"];
+    return [...new Set(base)].filter((g) => genreId(g) && g !== leadGenre && g !== secondGenre).slice(0, 4);
+  }, [topGenres, leadGenre, secondGenre]);
 
   const continueItems = useMemo(
-    () =>
-      Object.entries(progress)
-        .filter(([id]) => !finished.includes(id))
-        .sort((a, b) => b[1].updatedAt - a[1].updatedAt)
-        .slice(0, 8),
+    () => Object.entries(progress).filter(([id]) => !finished.includes(id)).sort((a, b) => b[1].updatedAt - a[1].updatedAt).slice(0, 8),
     [progress, finished],
   );
 
@@ -58,9 +82,7 @@ export function Home() {
     <div className="home page">
       <header className="home__bar">
         <Link to="/" aria-label="Tsuki, accueil"><Logo size={26} /></Link>
-        <Link to="/profile" className="home__avatar" aria-label="Profil">
-          {(displayName ?? "T").slice(0, 1).toUpperCase()}
-        </Link>
+        <Link to="/profile" className="home__avatar" aria-label="Profil">{(displayName ?? "T").slice(0, 1).toUpperCase()}</Link>
       </header>
 
       {hero ? <Hero manga={hero} taste={taste} fav={isFavorite(hero.id)} onFav={() => toggleFavorite(hero)} /> : <HeroSkeleton />}
@@ -75,38 +97,38 @@ export function Home() {
                   <Cover manga={{ id, title: p.title, author: "", status: "", genres: [], tags: [], synopsis: "", coverThumb: p.coverThumb, coverUrl: p.coverThumb } as Manga} shape="thumb" />
                   <span className="cont__play"><PlayIcon width={18} height={18} /></span>
                 </div>
-                <div className="cont__meta">
-                  <span className="cont__t">{p.title}</span>
-                  <span className="cont__c">Ch. {p.chapter} · p.{p.page + 1}</span>
-                </div>
+                <div className="cont__meta"><span className="cont__t">{p.title}</span><span className="cont__c">Ch. {p.chapter} · p.{p.page + 1}</span></div>
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      <Rail title="Recommandé pour vous" subtitle={`Calculé à partir de vos goûts · ${leadGenre}`} items={recommended.data} loading={recommended.loading} taste={taste} showCompat width={150} />
-      <Rail title="Tendances" items={trending.data} loading={trending.loading} taste={taste} />
-      <Rail title="Nouveautés" items={recent.data} loading={recent.loading} taste={taste} />
-      {genreRails.map((g) => (
-        <GenreRail key={g} name={g} taste={taste} />
-      ))}
+      <Rail title="Recommandé pour vous" subtitle={`D'après vos goûts · ${leadGenre} · ${secondGenre}`} items={recommended} loading={recA.loading || recB.loading} taste={taste} showCompat width={158} variant="big" />
+      <Rail title="Tendances" items={clean(trending.data)} loading={trending.loading} taste={taste} width={132} />
+      {anchor && <Rail title={`Parce que vous avez aimé ${anchor.title}`} items={clean(because.data)} loading={because.loading} taste={taste} width={132} />}
+      <Rail title="Pépites" subtitle="Les mieux notées" items={clean(gems.data)} loading={gems.loading} taste={taste} showCompat width={146} variant="big" />
+      <Rail title="Nouveautés" items={clean(recent.data)} loading={recent.loading} taste={taste} width={120} />
+      {otherGenres.map((g) => <GenreRail key={g} name={g} taste={taste} seen={seen} />)}
 
       <footer className="home__foot"><Logo size={20} /><p>Ta prochaine lecture, trouvée dans le noir.</p></footer>
     </div>
   );
 }
 
-function GenreRail({ name, taste }: { name: string; taste: ReturnType<typeof buildTaste> }) {
+function GenreRail({ name, taste, seen }: { name: string; taste: ReturnType<typeof buildTaste>; seen: Set<string> }) {
   const id = genreId(name)!;
-  const { data, loading } = useAsync(`genre-${id}`, () => listByGenre(id, 18));
-  return <Rail title={name} items={data} loading={loading} taste={taste} />;
+  const { data, loading } = useAsync(`genre-${id}`, () => listByGenre(id, 20));
+  return <Rail title={name} items={data ? data.filter((m) => !seen.has(m.id)) : data} loading={loading} taste={taste} width={128} />;
 }
 
 function Hero({ manga, taste, fav, onFav }: { manga: Manga; taste: ReturnType<typeof buildTaste>; fav: boolean; onFav: () => void }) {
   const score = compatibility(manga, taste);
+  const glow = manga.color ? { ["--ctx" as string]: manga.color } : undefined;
   return (
-    <section className="hero">
+    <div className="hero-wrap" style={glow as React.CSSProperties}>
+      <div className="hero__ctxglow" />
+      <section className="hero">
       <div className="hero__art"><Cover manga={manga} shape="hero" priority /></div>
       <div className="hero__scrim" />
       <div className="hero__body">
@@ -114,14 +136,15 @@ function Hero({ manga, taste, fav, onFav }: { manga: Manga; taste: ReturnType<ty
         <h1 className="hero__title">{manga.title}</h1>
         {manga.synopsis && <p className="hero__synopsis">{clamp(manga.synopsis, 150)}</p>}
         <div className="hero__actions">
-          <Link to={`/reader/${manga.id}`} className="btn btn--solid"><PlayIcon width={18} height={18} /> Lire</Link>
+          <Link to={`/title/${manga.id}`} className="btn btn--solid"><PlayIcon width={18} height={18} /> Voir</Link>
           <button className={`iconbtn iconbtn--lg${fav ? " is-on" : ""}`} onClick={onFav} aria-label={fav ? "Retirer" : "Ajouter à ma liste"}>
             {fav ? <CheckIcon /> : <PlusIcon />}
           </button>
           <div className="hero__ring"><CompatRing score={score} size={56} /></div>
         </div>
       </div>
-    </section>
+      </section>
+    </div>
   );
 }
 

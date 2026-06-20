@@ -12,6 +12,7 @@ export function Rail({
   taste,
   width = 138,
   showCompat = false,
+  variant = "standard",
 }: {
   title: string;
   subtitle?: string;
@@ -20,10 +21,11 @@ export function Rail({
   taste?: Taste;
   width?: number;
   showCompat?: boolean;
+  variant?: "standard" | "big";
 }) {
   if (!loading && (!items || items.length === 0)) return null;
   return (
-    <section className="rail">
+    <section className={`rail rail--${variant}`}>
       <header className="rail__head">
         <h2 className="rail__title">{title}</h2>
         {subtitle && <p className="rail__sub">{subtitle}</p>}

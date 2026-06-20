@@ -48,14 +48,46 @@ const CONTENT = "contentRating[]=safe&contentRating[]=suggestive";
 const mem = new Map<string, { t: number; v: unknown }>();
 const TTL = 1000 * 60 * 10;
 
+const PROXIES = [
+  (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  (u: string) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+];
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function rawFetch<T>(url: string): Promise<T> {
+  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!res.ok) throw new Error(`MangaDex ${res.status}`);
+  return (await res.json()) as T;
+}
+
+/** Resilient GET: cache → direct (with one retry) → CORS-proxy fallbacks.
+ *  Survives transient errors, rate limits, and networks that block the API
+ *  domain directly (the proxies live on other hosts). */
 async function getJSON<T>(url: string): Promise<T> {
   const cached = mem.get(url);
   if (cached && Date.now() - cached.t < TTL) return cached.v as T;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error(`MangaDex ${res.status}`);
-  const json = (await res.json()) as T;
-  mem.set(url, { t: Date.now(), v: json });
-  return json;
+
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const json = await rawFetch<T>(url);
+      mem.set(url, { t: Date.now(), v: json });
+      return json;
+    } catch (e) {
+      lastErr = e;
+      if (attempt === 0) await delay(400);
+    }
+  }
+  for (const proxy of PROXIES) {
+    try {
+      const json = await rawFetch<T>(proxy(url));
+      mem.set(url, { t: Date.now(), v: json });
+      return json;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("Réseau indisponible");
 }
 
 interface MDManga {

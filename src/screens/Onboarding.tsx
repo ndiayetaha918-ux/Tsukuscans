@@ -56,11 +56,11 @@ export function Onboarding() {
             </div>
             <div className="onb__welcome-scrim" />
             <div className="onb__welcome-body">
-              <LogoMark size={44} />
-              <h1 className="onb__h1">Ta prochaine lecture,<br />trouvée dans le noir.</h1>
+              <LogoMark size={48} />
+              <h1 className="onb__h1">Le manga,<br />au clair de lune.</h1>
               <p className="onb__lede">
-                Des milliers d'œuvres réelles. Un lecteur qui apprend tes goûts et te
-                tend la suivante avant même que tu la cherches.
+                Dis-nous ce que tu aimes. Tsuki éclaire la suite —
+                la bonne lecture, au bon moment.
               </p>
               <div className="onb__auth">
                 <button className="btn btn--solid" onClick={() => choose("google")}>Continuer avec Google</button>
@@ -82,15 +82,15 @@ export function Onboarding() {
             <header className="onb__taste-head">
               <div>
                 <h2 className="onb__h2">Choisis 5 œuvres que tu aimes</h2>
-                <p className="onb__taste-sub">On compose ton accueil dans la seconde.</p>
+                <p className="onb__taste-sub">On éclaire ton accueil aussitôt.</p>
               </div>
               <Counter count={picks.length} target={PICK_TARGET} />
             </header>
 
             {error ? (
               <div className="onb__error">
-                <p>Connexion à la bibliothèque impossible pour l'instant.</p>
-                <button className="btn btn--ghost" onClick={() => location.reload()}>Réessayer</button>
+                <p>La bibliothèque tarde à répondre.</p>
+                <button className="btn btn--primary" onClick={() => location.reload()}>Réessayer</button>
               </div>
             ) : (
               <div className="onb__grid">

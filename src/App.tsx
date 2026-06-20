@@ -11,6 +11,7 @@ import { Profile } from "@/screens/Profile";
 import { Detail } from "@/screens/Detail";
 import { Reader } from "@/screens/Reader";
 import { OfflineBadge } from "@/components/OfflineBadge";
+import { Ambient } from "@/components/Ambient";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -28,10 +29,18 @@ export default function App() {
 
   if (!hydrated) return null; // splash stays up until persisted state loads
 
-  if (!onboarded) return <Onboarding />;
+  if (!onboarded) {
+    return (
+      <>
+        <Ambient />
+        <Onboarding />
+      </>
+    );
+  }
 
   return (
     <>
+      <Ambient />
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />

@@ -1,0 +1,60 @@
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient__leak {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+/* warm vermillion ember, low-left */
+.ambient__leak--warm {
+  width: 78vw;
+  height: 78vw;
+  left: -22vw;
+  bottom: -28vh;
+  background: radial-gradient(circle, oklch(0.6 0.2 33 / 0.5), oklch(0.5 0.18 28 / 0.18) 45%, transparent 65%);
+  animation: leak-warm 28s ease-in-out infinite alternate;
+}
+/* cool moonlight counter-glow, upper-right */
+.ambient__leak--cool {
+  width: 62vw;
+  height: 62vw;
+  right: -18vw;
+  top: -22vh;
+  background: radial-gradient(circle, oklch(0.66 0.1 255 / 0.32), transparent 62%);
+  animation: leak-cool 34s ease-in-out infinite alternate;
+}
+/* a faint diagonal light streak crossing the top */
+.ambient__leak--streak {
+  width: 140vw;
+  height: 34vh;
+  left: -20vw;
+  top: -6vh;
+  border-radius: 50%;
+  transform: rotate(-14deg);
+  background: radial-gradient(60% 100% at 50% 50%, oklch(0.7 0.16 40 / 0.16), transparent 70%);
+  animation: leak-streak 40s ease-in-out infinite alternate;
+}
+
+@keyframes leak-warm {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(10vw, 7vh) scale(1.18); }
+}
+@keyframes leak-cool {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-7vw, 6vh) scale(1.12); }
+}
+@keyframes leak-streak {
+  from { transform: rotate(-14deg) translateX(-4vw); opacity: 0.8; }
+  to { transform: rotate(-10deg) translateX(6vw); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient__leak { animation: none; }
+}

@@ -1,99 +1,83 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
-import { buildProfile, buildHomeRails, compatibility } from "@/lib/recommend";
-import { getManga } from "@/data/catalog";
+import { buildTaste, compatibility } from "@/lib/recommend";
+import { listPopular, listRecent, listByGenre, GENRES } from "@/lib/mangadex";
+import { useAsync } from "@/lib/useAsync";
 import { Rail } from "@/components/Rail";
-import { CoverArt } from "@/components/CoverArt";
+import { Cover } from "@/components/Cover";
 import { CompatRing } from "@/components/CompatRing";
-import { PlayIcon, PlusIcon, CheckIcon, BellIcon, StarIcon } from "@/components/Icons";
+import { Logo } from "@/components/Logo";
+import { Skeleton } from "@/components/Skeleton";
+import { PlayIcon, PlusIcon, CheckIcon } from "@/components/Icons";
+import type { Manga } from "@/lib/types";
 import "./Home.css";
 
+const genreId = (name: string) => GENRES.find((g) => g.name === name)?.id;
+
 export function Home() {
-  const signal = useStore((s) => s.behaviorSignal());
+  const picks = useStore((s) => s.picks);
+  const favorites = useStore((s) => s.favorites);
   const progress = useStore((s) => s.progress);
   const finished = useStore((s) => s.finished);
-  const favorites = useStore((s) => s.favorites);
-  const toggleFavorite = useStore((s) => s.toggleFavorite);
   const displayName = useStore((s) => s.displayName);
+  const isFavorite = useStore((s) => s.isFavorite);
+  const toggleFavorite = useStore((s) => s.toggleFavorite);
 
-  const taste = useMemo(() => buildProfile(signal), [signal]);
-  const rails = useMemo(() => buildHomeRails(signal, taste), [signal, taste]);
+  const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
+
+  // Personalised lead genre (falls back gracefully on cold start).
+  const leadGenre = taste.topGenres.find((g) => genreId(g)) ?? "Action";
+  const leadId = genreId(leadGenre)!;
+
+  const recommended = useAsync(`rec-${leadId}`, () => listByGenre(leadId, 18));
+  const trending = useAsync("trending", () => listPopular(20));
+  const recent = useAsync("recent", () => listRecent(18));
+
+  const genreRails = useMemo(() => {
+    const names = (taste.topGenres.filter((g) => genreId(g)).slice(0, 4));
+    while (names.length < 3) {
+      const fill = ["Fantasy", "Romance", "Aventure", "Action"].find((g) => !names.includes(g))!;
+      names.push(fill);
+    }
+    return names;
+  }, [taste.topGenres]);
+
+  const hero = recommended.data?.[0] ?? trending.data?.[0];
 
   const continueItems = useMemo(
     () =>
       Object.entries(progress)
         .filter(([id]) => !finished.includes(id))
         .sort((a, b) => b[1].updatedAt - a[1].updatedAt)
-        .map(([id, p]) => ({ manga: getManga(id)!, p }))
-        .filter((x) => x.manga)
         .slice(0, 8),
     [progress, finished],
   );
 
-  const hero = rails.find((r) => r.id === "for-you")?.items[0] ?? rails[0]?.items[0];
-  const heroScore = hero ? compatibility(hero, taste) : 0;
-  const greeting = greet();
-
   return (
     <div className="home page">
       <header className="home__bar">
-        <Link to="/" className="home__brand" aria-label="Tsuki Scans, accueil">
-          <span className="home__brandmoon" />
-          tsuki
+        <Link to="/" aria-label="Tsuki, accueil"><Logo size={26} /></Link>
+        <Link to="/profile" className="home__avatar" aria-label="Profil">
+          {(displayName ?? "T").slice(0, 1).toUpperCase()}
         </Link>
-        <div className="home__baractions">
-          <button className="iconbtn" aria-label="Notifications"><BellIcon /></button>
-          <Link to="/profile" className="home__avatar" aria-label="Profil">
-            {(displayName ?? "T").slice(0, 1).toUpperCase()}
-          </Link>
-        </div>
       </header>
 
-      {hero && (
-        <section className="hero">
-          <div className="hero__art">
-            <CoverArt manga={hero} variant="hero" />
-            <div className="hero__scrim" />
-          </div>
-          <div className="hero__body">
-            <p className="hero__eyebrow"><StarIcon width={13} height={13} /> {hero.rating.toFixed(1)} · {hero.status}</p>
-            <h1 className="hero__title">{hero.title}</h1>
-            <p className="hero__genres">{hero.genres.slice(0, 3).join("  ·  ")}</p>
-            <p className="hero__synopsis">{hero.tagline}</p>
-            <div className="hero__actions">
-              <Link to={`/reader/${hero.id}`} className="btn btn--solid">
-                <PlayIcon width={18} height={18} /> Lire maintenant
-              </Link>
-              <button
-                className={`iconbtn iconbtn--lg${favorites.includes(hero.id) ? " is-on" : ""}`}
-                onClick={() => toggleFavorite(hero.id)}
-                aria-label={favorites.includes(hero.id) ? "Retirer des favoris" : "Ajouter à la liste"}
-              >
-                {favorites.includes(hero.id) ? <CheckIcon /> : <PlusIcon />}
-              </button>
-              <div className="hero__ring"><CompatRing score={heroScore} size={56} /></div>
-            </div>
-          </div>
-        </section>
-      )}
+      {hero ? <Hero manga={hero} taste={taste} fav={isFavorite(hero.id)} onFav={() => toggleFavorite(hero)} /> : <HeroSkeleton />}
 
       {continueItems.length > 0 && (
         <section className="rail continue">
-          <header className="rail__head">
-            <h2 className="rail__title">{greeting}{displayName ? `, ${displayName}` : ""} — on reprend ?</h2>
-          </header>
+          <header className="rail__head"><h2 className="rail__title">{greet()}{displayName ? `, ${displayName}` : ""} — on reprend ?</h2></header>
           <div className="rail__track no-scrollbar">
-            {continueItems.map(({ manga, p }) => (
-              <Link to={`/reader/${manga.id}`} key={manga.id} className="cont">
+            {continueItems.map(([id, p]) => (
+              <Link to={`/reader/${id}`} key={id} className="cont">
                 <div className="cont__poster">
-                  <CoverArt manga={manga} variant="tile" />
+                  <Cover manga={{ id, title: p.title, author: "", status: "", genres: [], tags: [], synopsis: "", coverThumb: p.coverThumb, coverUrl: p.coverThumb } as Manga} shape="thumb" />
                   <span className="cont__play"><PlayIcon width={18} height={18} /></span>
-                  <span className="cont__bar"><span style={{ width: `${chapterPct(p.chapterNumber, manga.chapters.length)}%` }} /></span>
                 </div>
                 <div className="cont__meta">
-                  <span className="cont__t">{manga.title}</span>
-                  <span className="cont__c">Chapitre {p.chapterNumber} · p.{p.page + 1}</span>
+                  <span className="cont__t">{p.title}</span>
+                  <span className="cont__c">Ch. {p.chapter} · p.{p.page + 1}</span>
                 </div>
               </Link>
             ))}
@@ -101,15 +85,56 @@ export function Home() {
         </section>
       )}
 
-      {rails.map((rail) => (
-        <Rail key={rail.id} rail={rail} taste={taste} />
+      <Rail title="Recommandé pour vous" subtitle={`Calculé à partir de vos goûts · ${leadGenre}`} items={recommended.data} loading={recommended.loading} taste={taste} showCompat width={150} />
+      <Rail title="Tendances" items={trending.data} loading={trending.loading} taste={taste} />
+      <Rail title="Nouveautés" items={recent.data} loading={recent.loading} taste={taste} />
+      {genreRails.map((g) => (
+        <GenreRail key={g} name={g} taste={taste} />
       ))}
 
-      <footer className="home__foot">
-        <span className="home__brandmoon" />
-        <p>Tsuki Scans — ta prochaine lecture, trouvée dans le noir.</p>
-      </footer>
+      <footer className="home__foot"><Logo size={20} /><p>Ta prochaine lecture, trouvée dans le noir.</p></footer>
     </div>
+  );
+}
+
+function GenreRail({ name, taste }: { name: string; taste: ReturnType<typeof buildTaste> }) {
+  const id = genreId(name)!;
+  const { data, loading } = useAsync(`genre-${id}`, () => listByGenre(id, 18));
+  return <Rail title={name} items={data} loading={loading} taste={taste} />;
+}
+
+function Hero({ manga, taste, fav, onFav }: { manga: Manga; taste: ReturnType<typeof buildTaste>; fav: boolean; onFav: () => void }) {
+  const score = compatibility(manga, taste);
+  return (
+    <section className="hero">
+      <div className="hero__art"><Cover manga={manga} shape="hero" priority /></div>
+      <div className="hero__scrim" />
+      <div className="hero__body">
+        <p className="hero__eyebrow">{manga.genres.slice(0, 3).join("  ·  ") || "À découvrir"}</p>
+        <h1 className="hero__title">{manga.title}</h1>
+        {manga.synopsis && <p className="hero__synopsis">{clamp(manga.synopsis, 150)}</p>}
+        <div className="hero__actions">
+          <Link to={`/reader/${manga.id}`} className="btn btn--solid"><PlayIcon width={18} height={18} /> Lire</Link>
+          <button className={`iconbtn iconbtn--lg${fav ? " is-on" : ""}`} onClick={onFav} aria-label={fav ? "Retirer" : "Ajouter à ma liste"}>
+            {fav ? <CheckIcon /> : <PlusIcon />}
+          </button>
+          <div className="hero__ring"><CompatRing score={score} size={56} /></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroSkeleton() {
+  return (
+    <section className="hero hero--skel">
+      <Skeleton style={{ position: "absolute", inset: 0, borderRadius: 0 }} />
+      <div className="hero__body">
+        <Skeleton style={{ width: 120, height: 14, marginBottom: 14 }} />
+        <Skeleton style={{ width: "70%", height: 44, marginBottom: 16 }} />
+        <Skeleton style={{ width: 160, height: 46, borderRadius: 999 }} />
+      </div>
+    </section>
   );
 }
 
@@ -120,6 +145,6 @@ function greet() {
   if (h < 18) return "Bon après-midi";
   return "Bonsoir";
 }
-function chapterPct(n: number, total: number) {
-  return Math.max(4, Math.min(100, (n / total) * 100));
+function clamp(s: string, n: number) {
+  return s.length > n ? s.slice(0, n).trimEnd() + "…" : s;
 }

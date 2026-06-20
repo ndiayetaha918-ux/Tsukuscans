@@ -1,0 +1,16 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.logomark {
+  filter: drop-shadow(0 0 12px oklch(0.6 0.18 282 / 0.55));
+  flex: none;
+}
+.logo__word {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.34rem;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}

@@ -31,9 +31,11 @@
 
 .profile__stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--s-2);
   padding: 0 var(--rail-gutter) var(--s-5);
+  max-width: 520px;
+  margin-inline: auto;
 }
 .profile__stat {
   display: grid;

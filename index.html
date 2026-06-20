@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -22,8 +22,21 @@
   </head>
   <body>
     <div id="splash" aria-hidden="true">
-      <div class="splash-moon"></div>
-      <div class="splash-word">tsuki</div>
+      <svg class="splash-mark" width="60" height="60" viewBox="0 0 48 48" fill="none">
+        <defs>
+          <linearGradient id="sg" x1="8" y1="6" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#dcccff" />
+            <stop offset="1" stop-color="#6a45d8" />
+          </linearGradient>
+          <mask id="sc">
+            <rect width="48" height="48" fill="#000" />
+            <circle cx="24" cy="24" r="18" fill="#fff" />
+            <circle cx="33" cy="18" r="15.5" fill="#000" />
+          </mask>
+        </defs>
+        <rect width="48" height="48" fill="url(#sg)" mask="url(#sc)" />
+      </svg>
+      <div class="splash-word">TSUKI</div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

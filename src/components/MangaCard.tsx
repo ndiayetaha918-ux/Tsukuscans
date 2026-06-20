@@ -1,37 +1,34 @@
 import { Link } from "react-router-dom";
 import type { Manga } from "@/lib/types";
-import { CoverArt } from "./CoverArt";
-import { StarIcon } from "./Icons";
+import { Cover } from "./Cover";
 import "./MangaCard.css";
 
 export function MangaCard({
   manga,
   width,
-  showMeta = false,
   compat,
+  showTitle = true,
 }: {
   manga: Manga;
   width?: number;
-  showMeta?: boolean;
   compat?: number;
+  showTitle?: boolean;
 }) {
   return (
     <Link
       to={`/title/${manga.id}`}
       className="mcard"
       style={width ? { width } : undefined}
-      aria-label={`${manga.title} par ${manga.author}`}
+      aria-label={manga.title}
     >
       <div className="mcard__poster">
-        <CoverArt manga={manga} variant="tile" />
+        <Cover manga={manga} shape="thumb" />
         {compat != null && <span className="mcard__compat">{compat}%</span>}
       </div>
-      {showMeta && (
+      {showTitle && (
         <div className="mcard__meta">
-          <span className="mcard__rating">
-            <StarIcon width={12} height={12} /> {manga.rating.toFixed(1)}
-          </span>
-          <span className="mcard__genre">{manga.genres[0]}</span>
+          <span className="mcard__title">{manga.title}</span>
+          {manga.genres[0] && <span className="mcard__genre">{manga.genres[0]}</span>}
         </div>
       )}
     </Link>

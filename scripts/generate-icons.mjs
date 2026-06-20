@@ -58,45 +58,39 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (t) => t * t * (3 - 2 * t);
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 
-// Tsuki moon glyph on infinite black.
+// Tsuki crescent-moon glyph on infinite black.
 function render(size) {
   const buf = Buffer.alloc(size * size * 4);
-  const cx = size * 0.6;
-  const cy = size * 0.42;
-  const r = size * 0.27;
-  // moon palette (approx oklch violet ramp in sRGB)
-  const bright = [196, 178, 255];
-  const mid = [142, 108, 240];
-  const dim = [78, 52, 150];
+  // big disc
+  const cx = size * 0.56, cy = size * 0.5, r = size * 0.34;
+  // carve disc (offset up-right) makes the crescent
+  const cx2 = size * 0.72, cy2 = size * 0.36, r2 = size * 0.3;
+  const bright = [215, 198, 255];
+  const mid = [138, 99, 239];
+  const dim = [90, 54, 201];
   const bg = [7, 7, 13];
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4;
-      // background with a faint corner glow
-      const gx = (x - size * 0.18) / size;
-      const gy = (y + size * 0.1) / size;
-      const corner = clamp01(1 - Math.hypot(gx, gy) * 1.3) * 0.5;
-      let R = bg[0] + corner * 30;
-      let G = bg[1] + corner * 24;
-      let B = bg[2] + corner * 60;
+      const gx = (x - size * 0.2) / size, gy = (y + size * 0.12) / size;
+      const corner = clamp01(1 - Math.hypot(gx, gy) * 1.3) * 0.45;
+      let R = bg[0] + corner * 26, G = bg[1] + corner * 20, B = bg[2] + corner * 56;
 
       const d = Math.hypot(x - cx, y - cy);
-      // outer glow
-      if (d > r) {
-        const g = Math.exp(-(d - r) / (r * 0.55));
-        R += mid[0] * g * 0.5;
-        G += mid[1] * g * 0.5;
-        B += mid[2] * g * 0.7;
+      const d2 = Math.hypot(x - cx2, y - cy2);
+      const inCrescent = d <= r && d2 >= r2;
+
+      if (inCrescent) {
+        // shade across the crescent (bright outer edge → dim inner)
+        const t = smooth(clamp01((d2 - r2) / (r * 0.9)));
+        R = lerp(dim[0], bright[0], t);
+        G = lerp(dim[1], bright[1], t);
+        B = lerp(dim[2], bright[2], t);
       } else {
-        // moon body: bright core to dim edge, with a soft top-left highlight
-        const t = smooth(clamp01(d / r));
-        const hx = (x - (cx - r * 0.3)) / r;
-        const hy = (y - (cy - r * 0.3)) / r;
-        const hi = clamp01(1 - Math.hypot(hx, hy)) * 0.4;
-        R = lerp(bright[0], dim[0], t) + hi * 40;
-        G = lerp(bright[1], dim[1], t) + hi * 40;
-        B = lerp(bright[2], dim[2], t) + hi * 40;
+        // glow hugging the crescent's outer rim
+        const g = Math.exp(-Math.abs(d - r) / (r * 0.35)) * (d > r ? 1 : 0);
+        R += mid[0] * g * 0.5; G += mid[1] * g * 0.5; B += mid[2] * g * 0.7;
       }
       buf[i] = Math.min(255, Math.round(R));
       buf[i + 1] = Math.min(255, Math.round(G));
@@ -113,17 +107,17 @@ for (const size of [192, 512]) {
 writeFileSync(resolve(pub, "apple-touch-icon.png"), encodePNG(180, 180, render(180)));
 
 // SVG favicon
-const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#07070d"/>
+const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <rect width="48" height="48" rx="11" fill="#07070d"/>
+  <path d="M31 8a16 16 0 1 0 0 32 12.6 12.6 0 0 1 0-32Z" fill="url(#m)"/>
+  <circle cx="34.5" cy="15.5" r="1.7" fill="#fff" opacity="0.9"/>
   <defs>
-    <radialGradient id="m" cx="42%" cy="36%" r="62%">
-      <stop offset="0" stop-color="#c4b2ff"/>
-      <stop offset="62%" stop-color="#7a52e6"/>
-      <stop offset="100%" stop-color="#3a2a78"/>
-    </radialGradient>
+    <linearGradient id="m" x1="12" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d7c6ff"/>
+      <stop offset="0.55" stop-color="#8a63ef"/>
+      <stop offset="1" stop-color="#5a36c9"/>
+    </linearGradient>
   </defs>
-  <circle cx="38" cy="27" r="17" fill="url(#m)"/>
-  <circle cx="38" cy="27" r="17" fill="none" stroke="#b9a6ff" stroke-opacity="0.25"/>
 </svg>`;
 writeFileSync(resolve(pub, "favicon.svg"), favicon);
 

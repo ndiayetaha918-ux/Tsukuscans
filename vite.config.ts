@@ -14,10 +14,15 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    VitePWA({
-      registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "apple-touch-icon.png"],
-      manifest: {
+    // PWA/service worker is skipped for the githack preview build (VITE_NO_PWA),
+    // where a SW on the shared githack origin is undesirable.
+    ...(process.env.VITE_NO_PWA
+      ? []
+      : [
+          VitePWA({
+            registerType: "autoUpdate",
+            includeAssets: ["favicon.svg", "apple-touch-icon.png"],
+            manifest: {
         name: "Tsuki Scans",
         short_name: "Tsuki",
         description: "Your next read, found in the dark. A premium manga discovery & reading experience.",
@@ -59,6 +64,7 @@ export default defineConfig({
         ],
       },
       devOptions: { enabled: false },
-    }),
+          }),
+        ]),
   ],
 });

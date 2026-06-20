@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getManga, getChapters, getChapterPages } from "@/lib/mangadex";
+import { getManga } from "@/lib/anilist";
+import { findChaptersByTitle, getChapterPages } from "@/lib/mangadex";
 import { useAsync } from "@/lib/useAsync";
 import { useStore, type AutoSpeed, type ReaderMode } from "@/store/useStore";
 import { ChevronLeft, ChevronRight, SettingsIcon, PlayIcon, CloseIcon, CheckIcon } from "@/components/Icons";
@@ -26,7 +27,7 @@ export function Reader() {
   const markFinished = useStore((s) => s.markFinished);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
-  const chapters = useAsync(`chapters-${id}`, () => getChapters(id));
+  const chapters = useAsync(manga.data?.title ? `chapters-${id}` : null, () => findChaptersByTitle(manga.data!.title));
 
   const [chapterIndex, setChapterIndex] = useState<number | null>(null);
   const [page, setPage] = useState(0);

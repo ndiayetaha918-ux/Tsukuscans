@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { getManga, getChapters, getStatistics } from "@/lib/mangadex";
+import { getManga } from "@/lib/anilist";
+import { findChaptersByTitle } from "@/lib/mangadex";
 import { useAsync } from "@/lib/useAsync";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility } from "@/lib/recommend";
@@ -22,8 +23,8 @@ export function Detail() {
   const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
-  const chapters = useAsync(`chapters-${id}`, () => getChapters(id));
-  const stats = useAsync(`stats-${id}`, () => getStatistics([id]));
+  const title = manga.data?.title;
+  const chapters = useAsync(title ? `chapters-${id}` : null, () => findChaptersByTitle(title!));
 
   if (manga.error) {
     return (
@@ -46,7 +47,7 @@ export function Detail() {
   }
 
   const m = manga.data;
-  const rating = stats.data?.[id]?.rating;
+  const rating = m.rating;
   const score = compatibility(m, taste);
   const fav = isFavorite(m.id);
   const chs = chapters.data ?? [];
@@ -97,7 +98,7 @@ export function Detail() {
         {chapters.loading ? (
           <div className="chlist">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} style={{ height: 58, marginBottom: 8 }} />)}</div>
         ) : chs.length === 0 ? (
-          <p className="detail__nochap">Aucun chapitre en français/anglais pour le moment.</p>
+          <p className="detail__nochap">Lecture indisponible pour cette œuvre pour le moment.</p>
         ) : (
           <ul className="chlist">
             {chs.map((c) => {

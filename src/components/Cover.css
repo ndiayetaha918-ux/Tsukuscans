@@ -17,6 +17,10 @@
     radial-gradient(120% 120% at 15% 100%, oklch(0.28 0.14 calc(var(--cv-hue) * 1deg) / 0.9), transparent 65%),
     linear-gradient(150deg, oklch(0.2 0.09 calc(var(--cv-hue) * 1deg)), oklch(0.07 0.03 calc(var(--cv-hue) * 1deg)));
 }
+/* When AniList gives a dominant cover colour, use it for a calmer placeholder. */
+.cv__placeholder--solid {
+  background: linear-gradient(155deg, var(--cv-color) -25%, #09090b 92%);
+}
 
 .cv__img {
   position: absolute;
@@ -69,4 +73,11 @@
 /* On wide screens let the focal cover sit right, text gets the left */
 @media (min-width: 760px) {
   .cv__heroimg { margin-right: 0; margin-left: auto; width: 56%; object-position: center 22%; }
+}
+
+/* Banner art is already wide: fill the frame, no blurred backfill needed. */
+.cv--banner .cv__heroblur { display: none; }
+.cv--banner .cv__heroimg { width: 100%; height: 100%; margin: 0; object-fit: cover; object-position: center 28%; }
+@media (min-width: 760px) {
+  .cv--banner .cv__heroimg { width: 100%; }
 }

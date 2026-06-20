@@ -8,51 +8,53 @@
 .ambient__leak {
   position: absolute;
   border-radius: 50%;
-  filter: blur(70px);
   mix-blend-mode: screen;
-  will-change: transform;
+  will-change: transform, opacity;
 }
-/* warm vermillion ember, low-left */
+/* Warm vermillion ember — mostly off-screen low-left, only its soft edge bleeds in. */
 .ambient__leak--warm {
-  width: 78vw;
-  height: 78vw;
-  left: -22vw;
-  bottom: -28vh;
-  background: radial-gradient(circle, oklch(0.6 0.2 33 / 0.5), oklch(0.5 0.18 28 / 0.18) 45%, transparent 65%);
-  animation: leak-warm 28s ease-in-out infinite alternate;
+  width: 90vw;
+  height: 90vw;
+  left: -45vw;
+  bottom: -55vh;
+  background: radial-gradient(circle, oklch(0.56 0.18 33 / 0.22), transparent 58%);
+  filter: blur(110px);
+  animation: leak-warm 46s ease-in-out infinite alternate;
 }
-/* cool moonlight counter-glow, upper-right */
+/* Cool moonlight counter-glow — off-screen upper-right. */
 .ambient__leak--cool {
-  width: 62vw;
-  height: 62vw;
-  right: -18vw;
-  top: -22vh;
-  background: radial-gradient(circle, oklch(0.66 0.1 255 / 0.32), transparent 62%);
-  animation: leak-cool 34s ease-in-out infinite alternate;
+  width: 80vw;
+  height: 80vw;
+  right: -42vw;
+  top: -50vh;
+  background: radial-gradient(circle, oklch(0.66 0.08 255 / 0.16), transparent 58%);
+  filter: blur(120px);
+  animation: leak-cool 58s ease-in-out infinite alternate;
 }
-/* a faint diagonal light streak crossing the top */
+/* A single faint vertical sweep — the "leak" itself, very subtle. */
 .ambient__leak--streak {
-  width: 140vw;
-  height: 34vh;
-  left: -20vw;
-  top: -6vh;
+  width: 30vw;
+  height: 150vh;
+  left: 8vw;
+  top: -25vh;
   border-radius: 50%;
-  transform: rotate(-14deg);
-  background: radial-gradient(60% 100% at 50% 50%, oklch(0.7 0.16 40 / 0.16), transparent 70%);
-  animation: leak-streak 40s ease-in-out infinite alternate;
+  transform: rotate(18deg);
+  background: linear-gradient(180deg, transparent, oklch(0.7 0.14 38 / 0.05) 45%, transparent);
+  filter: blur(40px);
+  animation: leak-streak 52s ease-in-out infinite alternate;
 }
 
 @keyframes leak-warm {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(10vw, 7vh) scale(1.18); }
+  from { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  to { transform: translate(6vw, -4vh) scale(1.12); opacity: 1; }
 }
 @keyframes leak-cool {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(-7vw, 6vh) scale(1.12); }
+  from { transform: translate(0, 0) scale(1); opacity: 0.8; }
+  to { transform: translate(-5vw, 4vh) scale(1.1); opacity: 1; }
 }
 @keyframes leak-streak {
-  from { transform: rotate(-14deg) translateX(-4vw); opacity: 0.8; }
-  to { transform: rotate(-10deg) translateX(6vw); opacity: 1; }
+  from { transform: rotate(18deg) translateX(-2vw); opacity: 0.6; }
+  to { transform: rotate(22deg) translateX(10vw); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility } from "@/lib/recommend";
-import { listPopular, listRecent, listByGenre, GENRES } from "@/lib/mangadex";
+import { listTrending, listRecent, listByGenre, GENRES } from "@/lib/anilist";
 import { useAsync } from "@/lib/useAsync";
 import { Rail } from "@/components/Rail";
 import { Cover } from "@/components/Cover";
@@ -13,7 +13,7 @@ import { PlayIcon, PlusIcon, CheckIcon } from "@/components/Icons";
 import type { Manga } from "@/lib/types";
 import "./Home.css";
 
-const genreId = (name: string) => GENRES.find((g) => g.name === name)?.id;
+const genreId = (name: string) => GENRES.find((g) => g.name === name)?.value;
 
 export function Home() {
   const picks = useStore((s) => s.picks);
@@ -31,7 +31,7 @@ export function Home() {
   const leadId = genreId(leadGenre)!;
 
   const recommended = useAsync(`rec-${leadId}`, () => listByGenre(leadId, 18));
-  const trending = useAsync("trending", () => listPopular(20));
+  const trending = useAsync("trending", () => listTrending(20));
   const recent = useAsync("recent", () => listRecent(18));
 
   const genreRails = useMemo(() => {

@@ -11,10 +11,12 @@ export interface Manga {
   genres: string[]; // tag names, "genre" group
   tags: string[]; // tag names, theme group
   synopsis: string;
-  rating?: number; // 0..10 (MangaDex statistics average)
+  rating?: number; // 0..10
   follows?: number; // popularity signal
-  coverUrl?: string; // 512px
-  coverThumb?: string; // 256px
+  coverUrl?: string; // large
+  coverThumb?: string; // medium
+  banner?: string; // wide 16:9 art (AniList bannerImage)
+  color?: string; // dominant cover colour (hex) for placeholders
   contentRating?: string;
 }
 

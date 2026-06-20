@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { listPopular } from "@/lib/mangadex";
+import { listPopular } from "@/lib/anilist";
 import { useAsync } from "@/lib/useAsync";
 import { Cover } from "@/components/Cover";
 import { LogoMark } from "@/components/Logo";

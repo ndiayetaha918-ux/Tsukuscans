@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { searchManga, listPopular, GENRES } from "@/lib/mangadex";
+import { searchManga, listPopular, GENRES } from "@/lib/anilist";
 import { useAsync } from "@/lib/useAsync";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility } from "@/lib/recommend";
@@ -45,7 +45,7 @@ export function Search() {
         </div>
         <div className="search__genres no-scrollbar">
           {GENRES.map((g) => (
-            <button key={g.id} className={`chip${genres.includes(g.name) ? " chip--active" : ""}`} onClick={() => toggleGenre(g.name)}>{g.name}</button>
+            <button key={g.value} className={`chip${genres.includes(g.name) ? " chip--active" : ""}`} onClick={() => toggleGenre(g.name)}>{g.name}</button>
           ))}
         </div>
       </header>

@@ -1,31 +1,35 @@
 import { useState } from "react";
 import type { Manga } from "@/lib/types";
-import { hueFor } from "@/lib/mangadex";
+import { hueFor } from "@/lib/anilist";
 import "./Cover.css";
 
 type Shape = "poster" | "thumb" | "hero";
 
-/* Real cover image with a deterministic gradient placeholder underneath, so
-   the layout never shows a broken image and titles without art still feel
-   intentional. `hero` renders a 16:9 cinematic frame: the cover, plus a
-   blurred copy of itself filling the wide space behind. */
+/* Real cover/banner imagery with a deterministic placeholder underneath, so the
+   layout never shows a broken image. `hero` prefers AniList's wide bannerImage
+   (true 16:9 art); otherwise it builds a cinematic frame from the cover with a
+   blurred backfill. Placeholders use the cover's own dominant colour. */
 export function Cover({ manga, shape = "poster", priority }: { manga: Manga; shape?: Shape; priority?: boolean }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const hue = hueFor(manga.id);
-  const src = shape === "thumb" ? manga.coverThumb : manga.coverUrl;
-  const showImg = src && !failed;
+  const placeholderStyle = {
+    ["--cv-hue" as string]: hue,
+    ...(manga.color ? { ["--cv-color" as string]: manga.color } : {}),
+  } as React.CSSProperties;
 
   if (shape === "hero") {
+    const heroSrc = manga.banner || manga.coverUrl;
+    const showImg = heroSrc && !failed;
     return (
-      <div className="cv cv--hero" style={{ ["--cv-hue" as string]: hue }}>
-        <div className="cv__placeholder" />
+      <div className={`cv cv--hero${manga.banner ? " cv--banner" : ""}`} style={placeholderStyle}>
+        <div className={`cv__placeholder${manga.color ? " cv__placeholder--solid" : ""}`} />
         {showImg && (
           <>
-            <img className="cv__heroblur" src={src} alt="" aria-hidden="true" loading="lazy" />
+            <img className="cv__heroblur" src={manga.coverUrl || heroSrc} alt="" aria-hidden="true" loading="lazy" />
             <img
               className={`cv__heroimg${loaded ? " is-on" : ""}`}
-              src={src}
+              src={heroSrc}
               alt={manga.title}
               loading={priority ? "eager" : "lazy"}
               onLoad={() => setLoaded(true)}
@@ -37,9 +41,11 @@ export function Cover({ manga, shape = "poster", priority }: { manga: Manga; sha
     );
   }
 
+  const src = shape === "thumb" ? manga.coverThumb || manga.coverUrl : manga.coverUrl || manga.coverThumb;
+  const showImg = src && !failed;
   return (
-    <div className={`cv cv--${shape}`} style={{ ["--cv-hue" as string]: hue }}>
-      <div className="cv__placeholder" />
+    <div className={`cv cv--${shape}`} style={placeholderStyle}>
+      <div className={`cv__placeholder${manga.color ? " cv__placeholder--solid" : ""}`} />
       {showImg && (
         <img
           className={`cv__img${loaded ? " is-on" : ""}`}

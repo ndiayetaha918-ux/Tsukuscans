@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility, dedupe } from "@/lib/recommend";
-import { listPopular, listByGenre, GENRES } from "@/lib/mangadex";
+import { listPopular, listByGenre, GENRES } from "@/lib/anilist";
 import { useAsync } from "@/lib/useAsync";
 import { Cover } from "@/components/Cover";
 import { CompatRing } from "@/components/CompatRing";
@@ -11,7 +11,7 @@ import { HeartIcon, PlayIcon, PlusIcon, CheckIcon, ChevronDown } from "@/compone
 import type { Manga } from "@/lib/types";
 import "./Discover.css";
 
-const genreId = (name: string) => GENRES.find((g) => g.name === name)?.id;
+const genreId = (name: string) => GENRES.find((g) => g.name === name)?.value;
 
 export function Discover() {
   const picks = useStore((s) => s.picks);

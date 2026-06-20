@@ -10,8 +10,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, var(--bg) 2%, oklch(0.04 0.02 280 / 0.5) 40%, transparent 72%),
-    linear-gradient(to bottom, oklch(0.03 0.01 280 / 0.5), transparent 30%);
+    linear-gradient(to top, var(--bg) 2%, oklch(0.04 0.02 30 / 0.5) 40%, transparent 72%),
+    linear-gradient(to bottom, oklch(0.03 0.01 30 / 0.5), transparent 30%);
 }
 .detail__back {
   position: absolute;
@@ -128,7 +128,7 @@
   color: var(--on-primary);
   background: var(--primary);
   border-color: transparent;
-  box-shadow: 0 0 16px oklch(0.6 0.18 282 / 0.5);
+  box-shadow: 0 0 16px oklch(0.6 0.18 30 / 0.5);
 }
 .chrow__badge {
   margin-left: auto;
@@ -137,7 +137,7 @@
   color: var(--primary-bright);
   padding: 3px 9px;
   border-radius: var(--r-pill);
-  background: oklch(0.64 0.19 280 / 0.16);
+  background: oklch(0.64 0.19 30 / 0.16);
 }
 .chrow__dl {
   flex: none;

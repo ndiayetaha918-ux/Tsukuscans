@@ -4,13 +4,13 @@
   gap: 9px;
 }
 .logomark {
-  filter: drop-shadow(0 0 12px oklch(0.6 0.18 282 / 0.55));
+  filter: drop-shadow(0 3px 10px oklch(0.4 0.18 30 / 0.4));
   flex: none;
 }
 .logo__word {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.34rem;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: -0.04em;
   color: var(--ink);
 }

@@ -29,8 +29,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, var(--bg-deep) 12%, oklch(0.04 0.02 280 / 0.62) 40%, oklch(0.04 0.02 280 / 0.12) 74%, transparent),
-    radial-gradient(80% 50% at 50% 112%, oklch(0.3 0.14 282 / 0.45), transparent);
+    linear-gradient(to top, var(--bg-deep) 12%, oklch(0.04 0.02 30 / 0.62) 40%, oklch(0.04 0.02 30 / 0.12) 74%, transparent),
+    radial-gradient(80% 50% at 50% 112%, oklch(0.3 0.14 30 / 0.45), transparent);
 }
 .onb__welcome-body {
   position: relative;
@@ -42,6 +42,7 @@
 }
 .onb__welcome-body .logomark { margin-bottom: var(--s-4); }
 .onb__h1 {
+  font-weight: 800;
   font-size: clamp(2.1rem, 8.5vw, 3.2rem);
   line-height: 1.0;
   letter-spacing: -0.04em;
@@ -83,7 +84,7 @@
   width: 7px; height: 7px; border-radius: 50%; background: var(--surface-3);
   transition: background var(--dur-mid) var(--ease-out-quint), transform var(--dur-mid) var(--ease-spring);
 }
-.onb__pip.is-on { background: var(--primary-bright); transform: scale(1.15); box-shadow: 0 0 10px oklch(0.6 0.18 282 / 0.7); }
+.onb__pip.is-on { background: var(--primary-bright); transform: scale(1.15); box-shadow: 0 0 10px oklch(0.6 0.18 30 / 0.7); }
 .onb__counternum { font-size: 0.78rem; color: var(--ink-mute); margin-left: 4px; font-variant-numeric: tabular-nums; }
 
 .onb__grid {
@@ -100,14 +101,14 @@
 }
 .onb__card--skel { background: var(--surface-1); animation: skel-shine 1.4s ease-in-out infinite; background-image: linear-gradient(100deg, var(--surface-1) 30%, var(--surface-2) 50%, var(--surface-1) 70%); background-size: 200% 100%; }
 .onb__card:active { transform: scale(0.96); }
-.onb__cardveil { position: absolute; inset: 0; background: oklch(0.04 0.02 280 / 0.5); opacity: 0; transition: opacity var(--dur-mid) var(--ease-out-quint); }
-.onb__card.is-selected { transform: translateY(-2px); box-shadow: 0 10px 30px oklch(0 0 0 / 0.5), 0 0 0 2px var(--primary-bright), 0 0 26px oklch(0.55 0.2 282 / 0.5); }
+.onb__cardveil { position: absolute; inset: 0; background: oklch(0.04 0.02 30 / 0.5); opacity: 0; transition: opacity var(--dur-mid) var(--ease-out-quint); }
+.onb__card.is-selected { transform: translateY(-2px); box-shadow: 0 10px 30px oklch(0 0 0 / 0.5), 0 0 0 2px var(--primary-bright), 0 0 26px oklch(0.55 0.2 30 / 0.5); }
 .onb__card.is-selected .onb__cardveil { opacity: 1; }
 .onb__check {
   position: absolute; top: 8px; right: 8px; width: 26px; height: 26px;
   display: grid; place-items: center; border-radius: 50%;
   color: var(--on-primary); background: var(--primary);
-  border: 1.5px solid oklch(0.85 0.1 282);
+  border: 1.5px solid oklch(0.85 0.1 30);
   opacity: 0; transform: scale(0.5);
   transition: opacity var(--dur-fast), transform var(--dur-mid) var(--ease-spring);
 }

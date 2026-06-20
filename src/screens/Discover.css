@@ -22,25 +22,25 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, oklch(0.02 0.01 280) 6%, oklch(0.02 0.01 280 / 0.15) 42%, transparent 62%),
-    radial-gradient(120% 60% at 50% 120%, oklch(0.02 0.01 280 / 0.7), transparent);
+    linear-gradient(to top, oklch(0.02 0.01 30) 6%, oklch(0.02 0.01 30 / 0.15) 42%, transparent 62%),
+    radial-gradient(120% 60% at 50% 120%, oklch(0.02 0.01 30 / 0.7), transparent);
 }
 
 .fcard__body { position: relative; width: 100%; max-width: 640px; padding: var(--s-6) var(--s-6) calc(var(--bottom-nav-h) + 48px); }
 .fcard__genres { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--s-3); }
 .fcard__genre {
   font-size: 0.72rem; font-weight: 500; padding: 4px 10px; border-radius: var(--r-pill);
-  color: var(--ink-soft); background: oklch(0.12 0.02 280 / 0.5); backdrop-filter: blur(8px); border: 1px solid var(--hairline);
+  color: var(--ink-soft); background: oklch(0.12 0.02 30 / 0.5); backdrop-filter: blur(8px); border: 1px solid var(--hairline);
 }
 .fcard__title {
-  display: block; font-family: var(--font-display); font-weight: 700;
+  display: block; font-family: var(--font-display); font-weight: 800;
   font-size: clamp(2.2rem, 11vw, 4rem); line-height: 0.96; letter-spacing: -0.04em;
   margin-bottom: var(--s-3); text-shadow: 0 6px 40px oklch(0 0 0 / 0.7); text-wrap: balance;
 }
 .fcard__syn { font-size: 0.98rem; line-height: 1.5; color: var(--ink-soft); max-width: 48ch; margin-bottom: var(--s-5); text-wrap: pretty; }
 .fcard__cta { display: flex; gap: var(--s-3); flex-wrap: wrap; }
 .fcard__cta .btn--solid { padding: 14px 26px; font-size: 1rem; }
-.fcard__cta .btn.is-on { color: var(--primary-bright); border-color: oklch(0.64 0.19 280 / 0.5); }
+.fcard__cta .btn.is-on { color: var(--primary-bright); border-color: oklch(0.64 0.19 30 / 0.5); }
 
 .fcard__side {
   position: absolute; right: var(--s-4); bottom: calc(var(--bottom-nav-h) + 96px); z-index: 3;

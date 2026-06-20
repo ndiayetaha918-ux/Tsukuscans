@@ -58,39 +58,40 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (t) => t * t * (3 - 2 * t);
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 
-// Tsuki crescent-moon glyph on infinite black.
+// distance to a rounded-rect edge (negative inside)
+function roundRectSDF(x, y, cx, cy, hw, hh, r) {
+  const dx = Math.abs(x - cx) - (hw - r);
+  const dy = Math.abs(y - cy) - (hh - r);
+  const ox = Math.max(dx, 0), oy = Math.max(dy, 0);
+  return Math.hypot(ox, oy) + Math.min(Math.max(dx, dy), 0) - r;
+}
+
+// Tsuki hanko seal: vermillion rounded square with a carved bone crescent.
 function render(size) {
   const buf = Buffer.alloc(size * size * 4);
-  // big disc
-  const cx = size * 0.56, cy = size * 0.5, r = size * 0.34;
-  // carve disc (offset up-right) makes the crescent
-  const cx2 = size * 0.72, cy2 = size * 0.36, r2 = size * 0.3;
-  const bright = [215, 198, 255];
-  const mid = [138, 99, 239];
-  const dim = [90, 54, 201];
-  const bg = [7, 7, 13];
+  const ink = [13, 11, 10];
+  const verm = [216, 65, 42];
+  const bone = [253, 241, 231];
+  const cx = size / 2, cy = size / 2;
+  const half = size * 0.38, rad = size * 0.26; // seal extents + corner radius
+  // crescent (within seal)
+  const mx = size * 0.48, my = size * 0.5, mr = size * 0.25;
+  const cx2 = size * 0.6, cy2 = size * 0.41, cr2 = size * 0.22;
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const i = (y * size + x) * 4;
-      const gx = (x - size * 0.2) / size, gy = (y + size * 0.12) / size;
-      const corner = clamp01(1 - Math.hypot(gx, gy) * 1.3) * 0.45;
-      let R = bg[0] + corner * 26, G = bg[1] + corner * 20, B = bg[2] + corner * 56;
-
-      const d = Math.hypot(x - cx, y - cy);
-      const d2 = Math.hypot(x - cx2, y - cy2);
-      const inCrescent = d <= r && d2 >= r2;
-
-      if (inCrescent) {
-        // shade across the crescent (bright outer edge → dim inner)
-        const t = smooth(clamp01((d2 - r2) / (r * 0.9)));
-        R = lerp(dim[0], bright[0], t);
-        G = lerp(dim[1], bright[1], t);
-        B = lerp(dim[2], bright[2], t);
-      } else {
-        // glow hugging the crescent's outer rim
-        const g = Math.exp(-Math.abs(d - r) / (r * 0.35)) * (d > r ? 1 : 0);
-        R += mid[0] * g * 0.5; G += mid[1] * g * 0.5; B += mid[2] * g * 0.7;
+      let R = ink[0], G = ink[1], B = ink[2];
+      const sd = roundRectSDF(x + 0.5, y + 0.5, cx, cy, half, half, rad);
+      const sealA = clamp01(0.5 - sd); // ~1px antialias edge
+      if (sealA > 0) {
+        // subtle paper-ink mottle on the seal
+        const n = (Math.sin(x * 0.7) * Math.cos(y * 0.6)) * 6;
+        let r = verm[0] + n, g = verm[1] + n * 0.6, b = verm[2] + n * 0.4;
+        const d = Math.hypot(x - mx, y - my), d2 = Math.hypot(x - cx2, y - cy2);
+        const inCrescent = d <= mr && d2 >= cr2;
+        if (inCrescent) { r = bone[0]; g = bone[1]; b = bone[2]; }
+        R = lerp(R, r, sealA); G = lerp(G, g, sealA); B = lerp(B, b, sealA);
       }
       buf[i] = Math.min(255, Math.round(R));
       buf[i + 1] = Math.min(255, Math.round(G));
@@ -108,16 +109,12 @@ writeFileSync(resolve(pub, "apple-touch-icon.png"), encodePNG(180, 180, render(1
 
 // SVG favicon
 const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <rect width="48" height="48" rx="11" fill="#07070d"/>
-  <path d="M31 8a16 16 0 1 0 0 32 12.6 12.6 0 0 1 0-32Z" fill="url(#m)"/>
-  <circle cx="34.5" cy="15.5" r="1.7" fill="#fff" opacity="0.9"/>
+  <rect width="48" height="48" fill="#0d0b0a"/>
   <defs>
-    <linearGradient id="m" x1="12" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#d7c6ff"/>
-      <stop offset="0.55" stop-color="#8a63ef"/>
-      <stop offset="1" stop-color="#5a36c9"/>
-    </linearGradient>
+    <mask id="c"><rect width="48" height="48" fill="#000"/><circle cx="23" cy="24" r="12" fill="#fff"/><circle cx="30" cy="19.5" r="10.5" fill="#000"/></mask>
   </defs>
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="#d8412a"/>
+  <rect width="48" height="48" fill="#fdf1e7" mask="url(#c)"/>
 </svg>`;
 writeFileSync(resolve(pub, "favicon.svg"), favicon);
 

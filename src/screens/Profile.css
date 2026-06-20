@@ -15,8 +15,8 @@
   font-size: 2rem;
   font-weight: 600;
   color: var(--ink);
-  background: linear-gradient(140deg, oklch(0.55 0.18 318), oklch(0.45 0.17 262));
-  box-shadow: 0 0 50px oklch(0.5 0.18 300 / 0.4), 0 1px 0 oklch(1 0 0 / 0.2) inset;
+  background: linear-gradient(140deg, oklch(0.55 0.18 22), oklch(0.45 0.17 30));
+  box-shadow: 0 0 50px oklch(0.5 0.18 30 / 0.4), 0 1px 0 oklch(1 0 0 / 0.2) inset;
   margin-bottom: var(--s-2);
 }
 .profile__name { font-size: 1.7rem; letter-spacing: -0.03em; }
@@ -77,8 +77,8 @@
   display: block;
   height: 100%;
   border-radius: var(--r-pill);
-  background: linear-gradient(90deg, oklch(0.62 0.19 278), oklch(0.7 0.2 318));
-  box-shadow: 0 0 12px oklch(0.6 0.18 282 / 0.5);
+  background: linear-gradient(90deg, oklch(0.62 0.19 30), oklch(0.7 0.2 22));
+  box-shadow: 0 0 12px oklch(0.6 0.18 30 / 0.5);
 }
 
 /* Repositories */
@@ -92,7 +92,7 @@
   background: var(--surface-1);
   border: 1px solid var(--hairline);
 }
-.repo--local { background: oklch(0.64 0.19 280 / 0.08); border-color: oklch(0.64 0.19 280 / 0.25); }
+.repo--local { background: oklch(0.64 0.19 30 / 0.08); border-color: oklch(0.64 0.19 30 / 0.25); }
 .repo__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .repo__name { font-weight: 600; font-size: 0.94rem; display: flex; align-items: center; gap: var(--s-2); }
 .repo__badge {
@@ -101,7 +101,7 @@
   color: var(--primary-bright);
   padding: 2px 7px;
   border-radius: var(--r-pill);
-  background: oklch(0.64 0.19 280 / 0.16);
+  background: oklch(0.64 0.19 30 / 0.16);
 }
 .repo__url { font-size: 0.74rem; color: var(--ink-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .repo__status { font-size: 0.76rem; color: var(--ink-mute); margin-top: 4px; }
@@ -147,7 +147,7 @@
   font-size: 0.88rem;
   outline: none;
 }
-.repo__add input:focus { border-color: oklch(0.64 0.19 280 / 0.5); }
+.repo__add input:focus { border-color: oklch(0.64 0.19 30 / 0.5); }
 .repo__add input::placeholder { color: var(--ink-ghost); }
 .repo__add .btn { flex: none; padding: 11px 16px; }
 

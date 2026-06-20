@@ -22,7 +22,7 @@
   align-items: center;
   gap: var(--s-3);
   padding: max(var(--s-3), env(safe-area-inset-top)) var(--s-4) var(--s-3);
-  background: linear-gradient(to bottom, oklch(0.02 0.01 280 / 0.85), transparent);
+  background: linear-gradient(to bottom, oklch(0.02 0.01 30 / 0.85), transparent);
 }
 .reader__heading { flex: 1; min-width: 0; display: flex; flex-direction: column; text-align: center; }
 .reader__title { font-size: 0.92rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -31,7 +31,7 @@
 .reader__bottom {
   bottom: 0;
   padding: var(--s-3) var(--s-4) max(var(--s-4), env(safe-area-inset-bottom));
-  background: linear-gradient(to top, oklch(0.02 0.01 280 / 0.9), transparent);
+  background: linear-gradient(to top, oklch(0.02 0.01 30 / 0.9), transparent);
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
@@ -53,17 +53,17 @@
 .reader__auto svg { color: var(--primary-bright); }
 .reader__auto.is-on {
   color: var(--on-primary);
-  background: linear-gradient(135deg, oklch(0.7 0.2 318), oklch(0.62 0.19 278));
+  background: linear-gradient(135deg, oklch(0.7 0.2 22), oklch(0.62 0.19 30));
   border-color: transparent;
-  box-shadow: 0 6px 22px oklch(0.55 0.2 282 / 0.5);
+  box-shadow: 0 6px 22px oklch(0.55 0.2 30 / 0.5);
 }
 .reader__progress { display: flex; align-items: center; gap: var(--s-3); }
 .reader__pageno { font-size: 0.74rem; color: var(--ink-mute); font-variant-numeric: tabular-nums; flex: none; }
 .reader__track { flex: 1; height: 4px; border-radius: var(--r-pill); background: oklch(1 0 0 / 0.12); overflow: hidden; }
 .reader__track span {
   display: block; height: 100%;
-  background: linear-gradient(90deg, var(--primary-bright), oklch(0.7 0.2 318));
-  box-shadow: 0 0 10px oklch(0.6 0.18 282 / 0.6);
+  background: linear-gradient(90deg, var(--primary-bright), oklch(0.7 0.2 22));
+  box-shadow: 0 0 10px oklch(0.6 0.18 30 / 0.6);
   transition: width var(--dur-fast) linear;
 }
 
@@ -178,7 +178,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
-  background: oklch(0.02 0.01 280 / 0.6);
+  background: oklch(0.02 0.01 30 / 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
@@ -228,8 +228,8 @@
 }
 .speedchip.is-on {
   color: var(--on-primary);
-  background: oklch(0.64 0.19 280 / 0.25);
-  border-color: oklch(0.64 0.19 280 / 0.6);
+  background: oklch(0.64 0.19 30 / 0.25);
+  border-color: oklch(0.64 0.19 30 / 0.6);
   color: var(--ink);
 }
 

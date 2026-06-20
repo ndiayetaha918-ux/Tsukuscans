@@ -16,7 +16,7 @@
   border-radius: 50%;
   font-weight: 600;
   color: var(--ink);
-  background: linear-gradient(140deg, oklch(0.5 0.16 318), oklch(0.45 0.16 262));
+  background: linear-gradient(140deg, oklch(0.5 0.16 22), oklch(0.45 0.16 30));
   border: 1px solid var(--hairline-strong);
 }
 
@@ -37,12 +37,13 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, oklch(0.02 0.01 280) 4%, transparent 58%),
-    linear-gradient(to right, oklch(0.02 0.01 280 / 0.85), oklch(0.02 0.01 280 / 0.2) 55%, transparent 75%);
+    linear-gradient(to top, oklch(0.02 0.01 30) 4%, transparent 58%),
+    linear-gradient(to right, oklch(0.02 0.01 30 / 0.85), oklch(0.02 0.01 30 / 0.2) 55%, transparent 75%);
 }
 .hero__body { position: relative; padding: var(--s-6); max-width: 600px; }
 .hero__eyebrow { font-size: 0.82rem; color: var(--ink-soft); margin-bottom: var(--s-3); letter-spacing: 0.01em; }
 .hero__title {
+  font-weight: 800;
   font-size: clamp(2.2rem, 8vw, 3.8rem);
   line-height: 0.98;
   letter-spacing: -0.04em;
@@ -53,7 +54,7 @@
 .hero__actions { display: flex; align-items: center; gap: var(--s-3); }
 .hero__actions .btn--solid { padding: 13px 24px; }
 .iconbtn--lg { width: 48px; height: 48px; }
-.iconbtn.is-on { color: var(--primary-bright); border-color: oklch(0.64 0.19 280 / 0.5); }
+.iconbtn.is-on { color: var(--primary-bright); border-color: oklch(0.64 0.19 30 / 0.5); }
 .hero__ring { margin-left: auto; }
 @media (max-width: 560px) { .hero__ring { display: none; } }
 
@@ -76,7 +77,7 @@
   place-items: center;
   border-radius: 50%;
   color: var(--ink);
-  background: oklch(0.08 0.01 280 / 0.5);
+  background: oklch(0.08 0.01 30 / 0.5);
   backdrop-filter: blur(8px);
   border: 1px solid var(--hairline-strong);
   transition: transform var(--dur-fast) var(--ease-spring);

@@ -37,7 +37,7 @@
   padding: 3px 8px;
   border-radius: var(--r-pill);
   color: var(--ink);
-  background: oklch(0.1 0.01 280 / 0.7);
+  background: oklch(0.1 0.01 30 / 0.7);
   backdrop-filter: blur(8px);
   border: 1px solid var(--hairline-strong);
 }
@@ -61,7 +61,7 @@
   padding: 3px 8px;
   border-radius: var(--r-pill);
   color: var(--ink);
-  background: oklch(0.08 0.01 280 / 0.7);
+  background: oklch(0.08 0.01 30 / 0.7);
   backdrop-filter: blur(8px);
   border: 1px solid var(--hairline-strong);
 }
@@ -82,8 +82,8 @@
   height: 64px;
   border-radius: 50%;
   color: var(--primary-bright);
-  background: oklch(0.64 0.19 280 / 0.14);
-  box-shadow: 0 0 40px oklch(0.55 0.2 282 / 0.3);
+  background: oklch(0.64 0.19 30 / 0.14);
+  box-shadow: 0 0 40px oklch(0.55 0.2 30 / 0.3);
 }
 .lib__empty h2 { font-size: 1.3rem; }
 .lib__empty p { color: var(--ink-mute); max-width: 36ch; }

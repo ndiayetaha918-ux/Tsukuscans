@@ -1,91 +1,82 @@
 /* ============================================================
-   Tsuki Scans — Design tokens
-   Mood: moonlight over an unlit sea. Infinite black surface,
-   a single cool violet that behaves like the moon — the only
-   real light source. Everything else is silver, ink, and depth.
-   All color in OKLCH so the ramp stays perceptually even.
+   Tsuki Scans — Art direction: "Encre & Vermillon"
+   The iconic manga palette: ink black, bone-paper white, and a
+   single vermillion red (朱, shu) — the colour of the hanko seal
+   and the rising sun. No purple, no digital gradients. Depth comes
+   from a real paper/film grain over warm ink, not from glows.
+   All colour in OKLCH.
    ============================================================ */
 :root {
-  /* — Surface: infinite black with a whisper of cool tint for depth — */
-  --bg: oklch(0.045 0.006 274);
-  --bg-deep: oklch(0.02 0.004 274);
-  --surface-1: oklch(0.085 0.009 274);
-  --surface-2: oklch(0.125 0.012 276);
-  --surface-3: oklch(0.165 0.014 278);
-  --hairline: oklch(1 0 0 / 0.07);
-  --hairline-strong: oklch(1 0 0 / 0.12);
+  /* — Surface: warm ink, never flat digital black — */
+  --bg: oklch(0.055 0.006 40);
+  --bg-deep: oklch(0.028 0.005 40);
+  --surface-1: oklch(0.095 0.008 42);
+  --surface-2: oklch(0.135 0.01 44);
+  --surface-3: oklch(0.18 0.012 44);
+  --hairline: oklch(1 0 0 / 0.08);
+  --hairline-strong: oklch(1 0 0 / 0.14);
 
-  /* — Ink: moonlight white down to faint — */
-  --ink: oklch(0.975 0.004 270);
-  --ink-soft: oklch(0.82 0.01 272);
-  --ink-mute: oklch(0.66 0.014 274);
-  --ink-faint: oklch(0.5 0.014 274);
-  --ink-ghost: oklch(0.4 0.012 274);
+  /* — Ink: warm bone-paper white down to faint — */
+  --ink: oklch(0.955 0.008 75);
+  --ink-soft: oklch(0.8 0.012 65);
+  --ink-mute: oklch(0.63 0.014 55);
+  --ink-faint: oklch(0.48 0.014 48);
+  --ink-ghost: oklch(0.38 0.012 45);
 
-  /* — The moon: the one true light. Used for focus, CTAs, glow — */
-  --primary: oklch(0.64 0.19 280);
-  --primary-bright: oklch(0.74 0.16 282);
-  --primary-dim: oklch(0.5 0.16 280);
-  --on-primary: oklch(0.99 0.01 280);
+  /* — Vermillion (朱): the one accent. Flat, confident, sparing — */
+  --primary: oklch(0.605 0.205 30);
+  --primary-bright: oklch(0.68 0.205 32);
+  --primary-dim: oklch(0.47 0.17 29);
+  --on-primary: oklch(0.99 0.02 70);
 
-  /* — Aurora: reserved spectrum for special moments only
-       (compatibility ring, hero CTA gradient, live pulses) — */
-  --aurora-1: oklch(0.7 0.2 318); /* magenta-violet */
-  --aurora-2: oklch(0.62 0.19 278); /* indigo */
-  --aurora-3: oklch(0.8 0.13 214); /* moonlit cyan */
+  /* legacy accent slots collapse onto the vermillion family */
+  --aurora-1: oklch(0.66 0.21 32);
+  --aurora-2: oklch(0.6 0.2 28);
+  --aurora-3: oklch(0.74 0.16 45);
 
   /* — Semantic — */
-  --positive: oklch(0.78 0.16 158);
+  --positive: oklch(0.76 0.15 150);
   --warning: oklch(0.82 0.15 80);
-  --live: oklch(0.66 0.23 18);
+  --live: oklch(0.62 0.22 28);
 
-  /* — Glows (atmosphere, not borders) — */
-  --glow-moon: 0 0 0.5px oklch(0.74 0.16 282 / 0.6), 0 8px 40px oklch(0.5 0.18 282 / 0.35);
+  /* — Shadows (depth without colour glow) — */
+  --glow-moon: 0 8px 40px oklch(0 0 0 / 0.6);
   --glow-soft: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 24px 60px oklch(0 0 0 / 0.6);
+  --seal-shadow: 0 4px 18px oklch(0.4 0.18 30 / 0.4);
 
-  /* — Radii: premium, generous — */
-  --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 18px;
-  --r-lg: 26px;
-  --r-xl: 34px;
+  /* — Paper / film grain (tactile depth over ink) — */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+
+  /* — Radii — */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
   --r-pill: 999px;
 
-  /* — Spacing scale (4pt rhythm, varied) — */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
+  /* — Spacing scale — */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
 
   /* — Type — */
   --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-seal: "Zen Maru Gothic", "Bricolage Grotesque", serif;
 
   /* — Motion — */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --dur-fast: 160ms;
-  --dur-mid: 260ms;
-  --dur-slow: 460ms;
+  --dur-fast: 160ms; --dur-mid: 260ms; --dur-slow: 460ms;
 
   /* — Layout — */
   --shell-max: 1280px;
   --rail-gutter: clamp(16px, 4vw, 48px);
   --bottom-nav-h: 64px;
 
-  /* — Z-scale (semantic, never arbitrary) — */
-  --z-rail: 10;
-  --z-sticky: 20;
-  --z-nav: 40;
-  --z-overlay: 60;
-  --z-modal: 80;
-  --z-toast: 100;
+  /* — Z-scale — */
+  --z-rail: 10; --z-sticky: 20; --z-nav: 40; --z-overlay: 60; --z-modal: 80; --z-toast: 100;
 
   color-scheme: dark;
 }

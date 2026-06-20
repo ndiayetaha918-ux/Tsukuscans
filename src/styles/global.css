@@ -23,12 +23,23 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
-  /* The black is never flat: two faint lights bleed in from the corners,
-     so the surface reads as depth rather than a panel. */
+  /* Warm ink, lifted by one faint vermillion ember low on the page. */
   background-image:
-    radial-gradient(70% 50% at 15% -10%, oklch(0.3 0.12 282 / 0.22), transparent 70%),
-    radial-gradient(60% 45% at 100% 0%, oklch(0.28 0.1 320 / 0.14), transparent 70%);
+    radial-gradient(80% 55% at 50% 120%, oklch(0.3 0.16 30 / 0.14), transparent 70%);
   background-attachment: fixed;
+}
+
+/* Paper / film grain over the whole surface — tactile depth, not flat pixels. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 160px 160px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
 }
 
 #root {
@@ -38,9 +49,9 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.06;
   text-wrap: balance;
 }
 
@@ -81,7 +92,7 @@ ol {
 }
 
 ::selection {
-  background: oklch(0.64 0.19 280 / 0.4);
+  background: oklch(0.64 0.19 30 / 0.4);
   color: var(--ink);
 }
 
@@ -117,7 +128,7 @@ ol {
 }
 .splash-mark {
   margin: 0 auto;
-  filter: drop-shadow(0 0 28px oklch(0.6 0.18 282 / 0.55));
+  filter: drop-shadow(0 0 28px oklch(0.6 0.18 30 / 0.55));
   animation: moon-breathe 2.6s var(--ease-out-quint) infinite;
 }
 .splash-word {

@@ -21,11 +21,11 @@
 
 .btn--primary {
   color: var(--on-primary);
-  background: linear-gradient(135deg, oklch(0.72 0.18 318), oklch(0.62 0.19 278) 52%, oklch(0.7 0.15 220));
+  background: var(--primary);
   border-color: transparent;
-  box-shadow: 0 10px 30px oklch(0.5 0.18 282 / 0.4), 0 1px 0 oklch(1 0 0 / 0.2) inset;
+  box-shadow: var(--seal-shadow), 0 1px 0 oklch(1 0 0 / 0.15) inset;
 }
-.btn--primary:not(:disabled):hover { box-shadow: 0 14px 38px oklch(0.5 0.18 282 / 0.55); }
+.btn--primary:not(:disabled):hover { background: var(--primary-bright); }
 
 .btn--solid {
   background: var(--ink);
@@ -42,8 +42,8 @@
 .btn--ghost:hover { background: var(--surface-1); color: var(--ink); }
 
 .btn--google { background: var(--surface-2); }
-.btn--discord { background: oklch(0.45 0.16 274); border-color: transparent; color: #fff; }
-.btn--discord:hover { background: oklch(0.5 0.17 274); }
+.btn--discord { background: var(--surface-2); border-color: var(--hairline); color: var(--ink); }
+.btn--discord:hover { background: var(--surface-3); }
 
 .btn--block { width: 100%; }
 
@@ -62,8 +62,8 @@
 }
 .chip--active {
   color: var(--ink);
-  background: oklch(0.64 0.19 280 / 0.18);
-  border-color: oklch(0.64 0.19 280 / 0.45);
+  background: oklch(0.64 0.19 30 / 0.18);
+  border-color: oklch(0.64 0.19 30 / 0.45);
 }
 
 .iconbtn {
@@ -73,7 +73,7 @@
   height: 40px;
   border-radius: 50%;
   color: var(--ink-soft);
-  background: oklch(0.12 0.01 280 / 0.55);
+  background: oklch(0.12 0.01 30 / 0.55);
   backdrop-filter: blur(12px);
   border: 1px solid var(--hairline);
   transition: transform var(--dur-fast) var(--ease-out-quint), background var(--dur-fast), color var(--dur-fast);

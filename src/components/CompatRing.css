@@ -7,7 +7,7 @@
 .compat__svg {
   position: absolute;
   inset: 0;
-  filter: drop-shadow(0 0 6px oklch(0.62 0.19 278 / 0.4));
+  filter: drop-shadow(0 0 6px oklch(0.62 0.19 30 / 0.4));
 }
 .compat__num {
   font-family: var(--font-display);

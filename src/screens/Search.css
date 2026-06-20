@@ -17,8 +17,8 @@
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
 .search__field:focus-within {
-  border-color: oklch(0.64 0.19 280 / 0.5);
-  box-shadow: 0 0 0 3px oklch(0.64 0.19 280 / 0.16);
+  border-color: oklch(0.64 0.19 30 / 0.5);
+  box-shadow: 0 0 0 3px oklch(0.64 0.19 30 / 0.16);
 }
 .search__field svg { color: var(--ink-mute); flex: none; }
 .search__field input {

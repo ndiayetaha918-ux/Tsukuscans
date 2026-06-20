@@ -64,6 +64,9 @@ export default defineConfig({
         ],
       },
       devOptions: { enabled: false },
+            // Kill any previously-installed service worker + its caches so users
+            // always get the latest deploy (no stale app shell).
+            selfDestroying: true,
           }),
         ]),
   ],

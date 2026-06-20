@@ -69,6 +69,7 @@ async function feed(id: string, lang: string): Promise<Chapter[]> {
       publishAt: c.attributes.publishAt,
       group: (group?.attributes?.name as string) || undefined,
       lang: c.attributes.translatedLanguage,
+      source: "mangadex",
     });
   }
   return out;

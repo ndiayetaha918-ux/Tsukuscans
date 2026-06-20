@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getManga } from "@/lib/anilist";
-import { findChaptersByTitle, getChapterPages } from "@/lib/mangadex";
+import { findChapters, getPages } from "@/lib/readerSource";
 import { useAsync } from "@/lib/useAsync";
 import { useStore, type AutoSpeed, type ReaderMode } from "@/store/useStore";
 import { ChevronLeft, ChevronRight, SettingsIcon, PlayIcon, CloseIcon, CheckIcon } from "@/components/Icons";
@@ -27,7 +27,7 @@ export function Reader() {
   const markFinished = useStore((s) => s.markFinished);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
-  const chapters = useAsync(manga.data?.title ? `chapters-${id}` : null, () => findChaptersByTitle(manga.data!.title));
+  const chapters = useAsync(manga.data?.searchTitles?.length ? `chapters-${id}` : null, () => findChapters(manga.data!.searchTitles!));
 
   const [chapterIndex, setChapterIndex] = useState<number | null>(null);
   const [page, setPage] = useState(0);
@@ -54,7 +54,7 @@ export function Reader() {
     chapterIndex !== null && chapters.data ? chapters.data[chapterIndex] : undefined;
 
   const pages = useAsync(chapter ? `pages-${chapter.id}` : null, () =>
-    chapter ? getChapterPages(chapter.id) : Promise.resolve([]),
+    chapter ? getPages(chapter) : Promise.resolve([]),
   );
 
   // reset restore flag whenever the rendered chapter or mode changes

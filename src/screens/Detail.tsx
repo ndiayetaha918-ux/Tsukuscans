@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getManga } from "@/lib/anilist";
-import { findChaptersByTitle } from "@/lib/mangadex";
+import { findChapters } from "@/lib/readerSource";
 import { useAsync } from "@/lib/useAsync";
 import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility } from "@/lib/recommend";
@@ -23,8 +23,8 @@ export function Detail() {
   const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
-  const title = manga.data?.title;
-  const chapters = useAsync(title ? `chapters-${id}` : null, () => findChaptersByTitle(title!));
+  const titles = manga.data?.searchTitles;
+  const chapters = useAsync(titles?.length ? `chapters-${id}` : null, () => findChapters(titles!));
 
   if (manga.error) {
     return (

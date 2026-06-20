@@ -122,6 +122,7 @@ function mapMedia(m: AniMedia): Manga {
     banner: m.bannerImage || undefined,
     color: m.coverImage.color || undefined,
     trailer: m.trailer?.id && m.trailer.site ? { id: m.trailer.id, site: m.trailer.site } : undefined,
+    searchTitles: [m.title.english, m.title.romaji, m.title.native].filter((t): t is string => !!t),
   };
 }
 

@@ -18,6 +18,7 @@ export interface Manga {
   banner?: string; // wide 16:9 art (AniList bannerImage)
   color?: string; // dominant cover colour (hex) for placeholders
   trailer?: { id: string; site: string }; // e.g. { id, site: "youtube" }
+  searchTitles?: string[]; // english / romaji / native — for reading-source lookup
   contentRating?: string;
 }
 
@@ -29,6 +30,7 @@ export interface Chapter {
   publishAt: string;
   group?: string;
   lang: string;
+  source: "comick" | "mangadex";
 }
 
 /** Minimal taste record persisted from onboarding picks + behaviour. */

@@ -11,16 +11,23 @@ const UA = {
 };
 
 async function head(label, url, opts = {}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), opts.timeout || 8000);
   try {
-    const r = await fetch(url, { headers: { ...UA, ...(opts.headers || {}) }, redirect: "follow" });
+    const r = await fetch(url, { headers: { ...UA, ...(opts.headers || {}) }, redirect: "follow", signal: ctrl.signal });
     const ct = r.headers.get("content-type") || "";
+    const server = r.headers.get("server") || "";
+    const cfRay = r.headers.get("cf-ray") ? " cf-ray" : "";
     const txt = ct.includes("text") || ct.includes("javascript") || ct.includes("json") ? await r.text() : null;
     const len = txt ? txt.length : Number(r.headers.get("content-length") || 0);
-    console.log(`  ${r.ok ? "✅" : "❌"} ${label}: ${r.status} ${ct} ${len}B`);
+    const challenge = txt && /just a moment|cf-challenge|challenge-platform|enable javascript/i.test(txt) ? " ⚠️CHALLENGE" : "";
+    console.log(`  ${r.ok ? "✅" : "❌"} ${label}: ${r.status} ${ct} ${len}B [${server}${cfRay}]${challenge}`);
     return { ok: r.ok, status: r.status, ct, txt, headers: r.headers };
   } catch (e) {
-    console.log(`  ❌ ${label}: ${e.message}`);
+    console.log(`  ❌ ${label}: ${e.name === "AbortError" ? "TIMEOUT (hang/blocked)" : e.message}`);
     return { ok: false };
+  } finally {
+    clearTimeout(t);
   }
 }
 

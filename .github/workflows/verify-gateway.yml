@@ -1,0 +1,20 @@
+name: Verify deployed gateway
+
+on:
+  push:
+    branches: [claude/tsuki-scans-pwa-nirbqo]
+    paths:
+      - "scripts/probe-gateway-live.mjs"
+      - ".github/workflows/verify-gateway.yml"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Test the live gateway end to end
+        run: node scripts/probe-gateway-live.mjs

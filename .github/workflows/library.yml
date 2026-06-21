@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: "0 5 * * *"
   workflow_dispatch:
+  push:
+    branches: [claude/tsuki-scans-pwa-nirbqo]
+    paths:
+      - "scripts/build-library.mjs"
+      - ".github/workflows/library.yml"
 
 permissions:
   contents: write

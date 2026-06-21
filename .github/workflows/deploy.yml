@@ -3,6 +3,16 @@ name: Deploy PWA to GitHub Pages
 on:
   push:
     branches: [claude/tsuki-scans-pwa-nirbqo]
+    # The library workflow scrapes, commits public/library, then builds+deploys
+    # itself — so it owns those paths to avoid a double Pages deploy.
+    paths-ignore:
+      - "scripts/build-library.mjs"
+      - "scripts/probe-*.mjs"
+      - ".github/workflows/library.yml"
+      - ".github/workflows/deploy.yml"
+      - ".github/workflows/probe.yml"
+      - "gateway/**"
+      - "public/library/**"
   workflow_dispatch:
 
 permissions:

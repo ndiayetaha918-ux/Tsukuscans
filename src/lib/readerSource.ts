@@ -1,49 +1,49 @@
 import type { Chapter } from "./types";
 import * as comick from "./comick";
 import * as mangadex from "./mangadex";
-import { NoGatewayError } from "./net";
+import { NoGatewayError, hasGateway } from "./net";
 import { findStaticChapters, staticPages } from "./library";
 
 /* Unified reading layer.
 
-   1. STATIC LIBRARY first — zero setup, works for everyone: chapter metadata is
-      pre-fetched into /library on this site and images are hotlinked from
-      uploads.mangadex.org. No relay, no deploy.
-   2. If a title isn't in the library, fall back to live sources through the
-      optional gateway (MangaDex, then Comick) for the full catalogue.
+   1. LIVE via the (built-in) gateway first — the FULL chapter list for any title
+      across the whole FR catalogue (MangaDex, then Comick).
+   2. Static library as a fallback (offline / gateway down): chapter metadata
+      pre-fetched into /library, images hotlinked from uploads.mangadex.org.
 
-   A NoGatewayError from the live path is rethrown only when the static path also
-   found nothing, so the reader can offer the optional gateway for off-library
-   titles without nagging when reading already works. */
+   This ordering matters: the static cache is capped to a few chapters per title,
+   so we must prefer the live source to get every chapter. */
 
 export async function findChapters(opts: { anilistId?: string; titles?: string[] }): Promise<Chapter[]> {
-  // 1. Static library (no setup).
+  const variants = [...new Set((opts.titles || []).filter(Boolean))].slice(0, 3);
+
+  if (hasGateway()) {
+    // 1. Live MangaDex (full chapter list) across title variants.
+    for (const t of variants) {
+      try {
+        const ch = await mangadex.findChaptersByTitle(t);
+        if (ch.length) return ch;
+      } catch (e) {
+        if (e instanceof NoGatewayError) break;
+      }
+    }
+    // 2. Live Comick.
+    for (const t of variants) {
+      try {
+        const ch = await comick.findChaptersByTitle(t);
+        if (ch.length) return ch;
+      } catch (e) {
+        if (e instanceof NoGatewayError) break;
+      }
+    }
+  }
+
+  // 3. Static library fallback (offline, or if live found nothing).
   try {
     const fromLib = await findStaticChapters(opts);
     if (fromLib.length) return fromLib;
-  } catch { /* fall through to live sources */ }
+  } catch { /* nothing */ }
 
-  const variants = [...new Set((opts.titles || []).filter(Boolean))].slice(0, 3);
-  if (variants.length === 0) return [];
-
-  // 2. Live MangaDex via gateway across title variants.
-  for (const t of variants) {
-    try {
-      const ch = await mangadex.findChaptersByTitle(t);
-      if (ch.length) return ch;
-    } catch (e) {
-      if (e instanceof NoGatewayError) throw e;
-    }
-  }
-  // 3. Live Comick via gateway.
-  for (const t of variants) {
-    try {
-      const ch = await comick.findChaptersByTitle(t);
-      if (ch.length) return ch;
-    } catch (e) {
-      if (e instanceof NoGatewayError) throw e;
-    }
-  }
   return [];
 }
 

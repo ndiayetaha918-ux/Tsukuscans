@@ -108,23 +108,19 @@ function GatewaySection() {
   return (
     <section className="profile__section">
       <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Catalogue complet</h2>
+      <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Actif et intégré — tout le catalogue FR est lisible à la demande, rien à installer.</p>
       <p className="profile__muted profile__sub">
-        Le cache hors-ligne ne couvre que quelques dizaines de titres. Pour lire
-        <strong> tout le catalogue FR à la demande</strong>, déploie une fois ta petite
-        passerelle Cloudflare gratuite (les sources bloquent les appels directs du
-        navigateur — c'est inévitable). ~2&nbsp;min, sans code :
+        Avancé (optionnel) : tu peux faire passer la lecture par <strong>ta propre
+        passerelle</strong> au lieu de celle intégrée. Déploie-la
+        (<a href="https://github.com/ndiayetaha918-ux/Tsukuscans/blob/claude/tsuki-scans-pwa-nirbqo/gateway/README.md" target="_blank" rel="noopener noreferrer">guide ↗</a>),
+        colle son URL, teste.
       </p>
-      <ol className="gw__steps">
-        <li>Ouvre <a href="https://dash.deno.com/new_playground" target="_blank" rel="noopener noreferrer">ce lien ↗</a> et connecte-toi avec GitHub (gratuit).</li>
-        <li>Efface l'exemple, puis colle <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier ↗</a> à la place. Clique <strong>Save &amp; Deploy</strong>.</li>
-        <li>Copie l'adresse qui finit par <code>.deno.dev</code>, colle-la ci-dessous, clique Tester.</li>
-      </ol>
       <div className="gw">
         <input
           className="gw__input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://xxxxx.deno.dev"
+          placeholder="https://… (laisser vide = passerelle intégrée)"
           aria-label="URL de la passerelle"
           autoCapitalize="none" autoCorrect="off" spellCheck={false}
         />
@@ -134,7 +130,7 @@ function GatewaySection() {
       </div>
       {st.kind === "ok" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> {st.msg}</p>}
       {st.kind === "err" && <p className="gw__status gw__status--err"><CloseIcon width={15} height={15} /> {st.msg}</p>}
-      {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Catalogue complet actif : {gatewayUrl}</p>}
+      {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Passerelle perso active : {gatewayUrl}</p>}
       <a className="gw__guide" href="https://github.com/ndiayetaha918-ux/Tsukuscans/blob/claude/tsuki-scans-pwa-nirbqo/gateway/README.md" target="_blank" rel="noopener noreferrer">
         Autres options (Deno, Node, CLI) & détails ↗
       </a>

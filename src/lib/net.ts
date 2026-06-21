@@ -18,12 +18,16 @@ import { useStore } from "@/store/useStore";
    set we fail FAST with NoGatewayError so the reader can guide the user to set
    one up — never an infinite spinner, never a false promise. */
 
-const gw = () => useStore.getState().gatewayUrl;
+/** Built-in gateway: the whole FR catalogue works for every user with NOTHING
+ *  to paste or deploy. Users can still override it with their own in Profil. */
+export const DEFAULT_GATEWAY = "https://rocky-vicuna-3084.ndiayetaha918-ux.deno.net";
+
+const gw = () => (useStore.getState().gatewayUrl || DEFAULT_GATEWAY).replace(/\/+$/, "");
 
 export const hasGateway = () => !!gw();
 
-/** Thrown immediately when a reading request is made with no gateway set. The
- *  reader catches this to show the one-time "activate reading" guidance. */
+/** Thrown when a reading request is made with no gateway at all (shouldn't
+ *  happen now that one is built in, but kept for safety). */
 export class NoGatewayError extends Error {
   constructor() {
     super("NO_GATEWAY");
@@ -34,13 +38,10 @@ export class NoGatewayError extends Error {
 export const mdUrl = (path: string) => `${gw()}/md/${path}`;
 export const ckUrl = (path: string) => `${gw()}/ck/${path}`;
 
-/** Page image URL. Direct by default (images ignore CORS); routed through the
- *  gateway only when one is set, so users whose network blocks MangaDex still
- *  get their pages. */
-export const imgUrl = (u: string) => {
-  const g = gw();
-  return g ? `${g}/img?u=${encodeURIComponent(u)}` : u;
-};
+/** Page image URL — always DIRECT. Images load via <img>, which ignores CORS, so
+ *  they never need the gateway; keeping them direct protects the gateway's
+ *  bandwidth (it only ever proxies tiny JSON). */
+export const imgUrl = (u: string) => u;
 
 async function fetchJSON<T>(url: string, timeout = 9000): Promise<T> {
   const ctrl = new AbortController();

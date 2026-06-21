@@ -1,41 +1,13 @@
 import type { Chapter } from "./types";
+import { mdUrl, imgUrl, getJSON } from "./net";
 
-/* MangaDex is used only for actual reading (chapter list + page images),
-   looked up by title from the AniList catalogue. Best-effort: if MangaDex is
-   unreachable, the reader degrades gracefully while browsing stays on AniList. */
+/* MangaDex reading source. Routes through the gateway when configured (the only
+   reliable path when the network blocks MangaDex), else best-effort direct. */
 
-const API = "https://api.mangadex.org";
+const MD = "https://api.mangadex.org";
 const CONTENT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica";
 
-const PROXIES = [
-  (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  (u: string) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-];
-const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-async function rawFetch<T>(url: string, timeout = 6000): Promise<T> {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), timeout);
-  try {
-    const res = await fetch(url, { headers: { Accept: "application/json" }, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`MangaDex ${res.status}`);
-    return (await res.json()) as T;
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-async function getJSON<T>(url: string): Promise<T> {
-  let lastErr: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try { return await rawFetch<T>(url); }
-    catch (e) { lastErr = e; if (attempt === 0) await delay(350); }
-  }
-  for (const proxy of PROXIES) {
-    try { return await rawFetch<T>(proxy(url)); } catch (e) { lastErr = e; }
-  }
-  throw lastErr instanceof Error ? lastErr : new Error("MangaDex indisponible");
-}
+const mdGet = <T>(path: string) => getJSON<T>(mdUrl(path), `${MD}/${path}`);
 
 interface MDList<T> { data: T[] }
 interface MDChapter {
@@ -44,16 +16,13 @@ interface MDChapter {
   relationships: { type: string; attributes?: Record<string, unknown> }[];
 }
 
-/** Find a MangaDex manga id by title (best match). */
 async function findMangaId(title: string): Promise<string | null> {
-  const url = `${API}/manga?title=${encodeURIComponent(title)}&limit=1&${CONTENT}&order[relevance]=desc`;
-  const j = await getJSON<MDList<{ id: string }>>(url);
+  const j = await mdGet<MDList<{ id: string }>>(`manga?title=${encodeURIComponent(title)}&limit=1&${CONTENT}&order[relevance]=desc`);
   return j.data[0]?.id ?? null;
 }
 
 async function feed(id: string, lang: string): Promise<Chapter[]> {
-  const url = `${API}/manga/${id}/feed?translatedLanguage[]=${lang}&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=200&includes[]=scanlation_group`;
-  const j = await getJSON<MDList<MDChapter>>(url);
+  const j = await mdGet<MDList<MDChapter>>(`manga/${id}/feed?translatedLanguage[]=${lang}&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=200&includes[]=scanlation_group`);
   const seen = new Set<string>();
   const out: Chapter[] = [];
   for (const c of j.data) {
@@ -75,8 +44,7 @@ async function feed(id: string, lang: string): Promise<Chapter[]> {
   return out;
 }
 
-/** Chapters for a title, preferring French scans (e.g. colour manhwa teams
- *  like Little Garden) and falling back to English. Empty if not on MangaDex. */
+/** Chapters for a title, French first then English. */
 export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
   const id = await findMangaId(title);
   if (!id) return [];
@@ -85,10 +53,8 @@ export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
   return feed(id, "en");
 }
 
-/** Full page image URLs for a chapter via the at-home server. */
+/** Page image URLs (proxied through the gateway when configured). */
 export async function getChapterPages(chapterId: string): Promise<string[]> {
-  const j = await getJSON<{ baseUrl: string; chapter: { hash: string; data: string[] } }>(
-    `${API}/at-home/server/${chapterId}`,
-  );
-  return j.chapter.data.map((f) => `${j.baseUrl}/data/${j.chapter.hash}/${f}`);
+  const j = await mdGet<{ baseUrl: string; chapter: { hash: string; data: string[] } }>(`at-home/server/${chapterId}`);
+  return j.chapter.data.map((f) => imgUrl(`${j.baseUrl}/data/${j.chapter.hash}/${f}`));
 }

@@ -84,7 +84,7 @@ export function Home() {
       {!ready ? (
         <HomeSkeleton />
       ) : (
-        blocks.map((b, i) => <BlockView key={`${b.t}-${i}`} block={b} taste={taste} />)
+        blocks.map((b, i) => <BlockView key={`${b.t}-${i}`} block={b} />)
       )}
 
       <footer className="home__foot"><Logo size={20} /><p>Ta prochaine lecture, trouvée dans le noir.</p></footer>

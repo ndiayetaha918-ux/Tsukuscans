@@ -23,10 +23,9 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;
-  /* Warm ink, lifted by one faint vermillion ember low on the page. */
-  background-image:
-    radial-gradient(80% 55% at 50% 120%, oklch(0.3 0.16 30 / 0.14), transparent 70%);
-  background-attachment: fixed;
+  /* Truly neutral ink. All colour comes from the content via the LightField,
+     never from a baked-in tint. */
+  background-color: var(--bg);
 }
 
 /* Paper / film grain over the whole surface — tactile depth, not flat pixels. */

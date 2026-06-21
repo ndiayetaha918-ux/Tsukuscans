@@ -41,15 +41,19 @@ function hueFromId(id: string): number {
 
 /** Build a diffusion palette from a hex (or fall back to a deterministic hue). */
 export function derivePalette(hex?: string, id = ""): ContentPalette {
-  let h: number, s: number;
   const parsed = hex ? hexToHsl(hex) : null;
-  if (parsed) {
-    h = parsed[0];
-    s = Math.max(0.45, Math.min(0.9, parsed[1] || 0.6));
-  } else {
-    h = hueFromId(id);
-    s = 0.6;
+  // No content colour → a dim, near-neutral cool glow, NOT a coloured tint.
+  if (!parsed) {
+    const h = hueFromId(id || "x");
+    return {
+      dom: hsl(h, 0.12, 0.4, 0.18),
+      sec1: hsl(h + 40, 0.12, 0.42, 0.14),
+      sec2: hsl(h - 40, 0.1, 0.36, 0.12),
+      acc: hsl(h, 0.14, 0.5, 0.18),
+    };
   }
+  const h = parsed[0];
+  const s = Math.max(0.45, Math.min(0.9, parsed[1] || 0.6));
   return {
     // boost saturation, control lightness ourselves so it always reads as "light"
     dom: hsl(h, s, 0.5, 0.5),

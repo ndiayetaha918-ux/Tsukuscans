@@ -4,7 +4,6 @@ import { useStore } from "@/store/useStore";
 import { buildTaste, compatibility, dedupe } from "@/lib/recommend";
 import { listTrending, listByGenre, GENRES } from "@/lib/anilist";
 import { Cover } from "@/components/Cover";
-import { CompatRing } from "@/components/CompatRing";
 import { HeartIcon, PlayIcon, PlusIcon, CheckIcon, ChevronDown } from "@/components/Icons";
 import type { Manga } from "@/lib/types";
 import "./Discover.css";
@@ -85,7 +84,7 @@ export function Discover() {
   return (
     <div className="feed" aria-label="Feed de découverte" ref={feedRef}>
       {items.map((m, i) => (
-        <FeedCard key={m.id} manga={m} score={compatibility(m, taste)} first={i === 0} />
+        <FeedCard key={m.id} manga={m} first={i === 0} />
       ))}
       <div ref={sentinelRef} className="feed__sentinel" aria-hidden="true" />
       {items.length === 0 && <div className="fcard feed__loadcard"><span className="feed__spinner" /></div>}
@@ -93,7 +92,7 @@ export function Discover() {
   );
 }
 
-function FeedCard({ manga, score, first }: { manga: Manga; score: number; first: boolean }) {
+function FeedCard({ manga, first }: { manga: Manga; first: boolean }) {
   const isFavorite = useStore((s) => s.isFavorite);
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const fav = isFavorite(manga.id);
@@ -108,7 +107,6 @@ function FeedCard({ manga, score, first }: { manga: Manga; score: number; first:
         <button className={`fcard__act${fav ? " is-on" : ""}`} onClick={() => toggleFavorite(manga)} aria-label={fav ? "Retirer" : "J'aime"}>
           <HeartIcon /><span>{fav ? "Aimé" : "J'aime"}</span>
         </button>
-        <div className="fcard__act"><CompatRing score={score} size={50} /><span>match</span></div>
       </div>
 
       <div className="fcard__body">

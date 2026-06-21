@@ -1,7 +1,6 @@
 import type { Manga } from "@/lib/types";
 import { MangaCard } from "./MangaCard";
 import { PosterSkeletons } from "./Skeleton";
-import { compatibility, type Taste } from "@/lib/recommend";
 import "./Rail.css";
 
 export function Rail({
@@ -9,18 +8,14 @@ export function Rail({
   subtitle,
   items,
   loading,
-  taste,
   width = 138,
-  showCompat = false,
   variant = "standard",
 }: {
   title: string;
   subtitle?: string;
   items?: Manga[];
   loading?: boolean;
-  taste?: Taste;
   width?: number;
-  showCompat?: boolean;
   variant?: "standard" | "big";
 }) {
   if (!loading && (!items || items.length === 0)) return null;
@@ -34,14 +29,7 @@ export function Rail({
         {loading || !items ? (
           <PosterSkeletons count={6} width={width} />
         ) : (
-          items.map((m) => (
-            <MangaCard
-              key={m.id}
-              manga={m}
-              width={width}
-              compat={showCompat && taste ? compatibility(m, taste) : undefined}
-            />
-          ))
+          items.map((m) => <MangaCard key={m.id} manga={m} width={width} />)
         )}
       </div>
     </section>

@@ -164,3 +164,24 @@
   transition: background var(--dur-fast);
 }
 .profile__danger:hover { background: oklch(0.66 0.23 18 / 0.14); }
+
+/* Reading gateway */
+.gw { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.gw__input {
+  flex: 1; min-width: 200px;
+  padding: 12px var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  font-size: 0.9rem;
+  outline: none;
+}
+.gw__input:focus { border-color: oklch(0.64 0.19 30 / 0.5); }
+.gw__input::placeholder { color: var(--ink-ghost); }
+.gw__test { flex: none; padding: 12px 16px; }
+.gw__status { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; margin-top: var(--s-3); }
+.gw__status--ok { color: var(--positive); }
+.gw__status--err { color: var(--live); }
+.profile__sub code { color: var(--ink-soft); background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+.gw__guide { display: inline-block; margin-top: var(--s-3); font-size: 0.84rem; color: var(--primary-bright); }

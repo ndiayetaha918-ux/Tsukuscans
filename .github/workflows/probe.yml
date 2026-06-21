@@ -5,6 +5,7 @@ on:
     branches: [claude/tsuki-scans-pwa-nirbqo]
     paths:
       - "scripts/probe-mangadex.mjs"
+      - "gateway/**"
       - ".github/workflows/probe.yml"
   workflow_dispatch:
 
@@ -18,3 +19,5 @@ jobs:
           node-version: "20"
       - name: Probe MangaDex (FR + EN, chapters + page images)
         run: node scripts/probe-mangadex.mjs
+      - name: Gateway test against real MangaDex (proves reading path)
+        run: node gateway/test.mjs

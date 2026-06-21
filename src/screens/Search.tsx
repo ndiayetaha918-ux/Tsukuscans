@@ -64,7 +64,7 @@ export function Search() {
         ) : results.length === 0 ? (
           <p className="search__none">Rien ne correspond. Essaie un autre titre ou thème.</p>
         ) : (
-          results.map(({ m, s }) => <MangaCard key={m.id} manga={m} compat={s} />)
+          results.map(({ m }) => <MangaCard key={m.id} manga={m} />)
         )}
       </div>
     </div>

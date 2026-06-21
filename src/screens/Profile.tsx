@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useStore } from "@/store/useStore";
 import { buildTaste } from "@/lib/recommend";
-import { LayersIcon, SparkIcon, CheckIcon } from "@/components/Icons";
+import { LayersIcon, SparkIcon, CheckIcon, CloseIcon } from "@/components/Icons";
 import "./Profile.css";
 
 export function Profile() {
@@ -62,17 +62,7 @@ export function Profile() {
         <p className="profile__hint">Lecture : <strong>{readerModeLabel(reader.mode)}</strong> · Auto-scroll {reader.autoSpeed}×{reader.smartAuto ? " · intelligent" : ""}</p>
       </section>
 
-      <section className="profile__section">
-        <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Source du catalogue</h2>
-        <p className="profile__muted profile__sub">Tsuki lit en direct depuis MangaDex, une source ouverte de l'écosystème Tachiyomi/Keiyoushi. Vraies œuvres, vraies couvertures, mises à jour en continu.</p>
-        <div className="repo repo--local">
-          <div className="repo__main">
-            <span className="repo__name">MangaDex <span className="repo__badge">Active</span></span>
-            <span className="repo__url">api.mangadex.org · multilingue</span>
-          </div>
-          <span className="repo__locked"><CheckIcon width={16} height={16} /></span>
-        </div>
-      </section>
+      <GatewaySection />
 
       <section className="profile__section">
         <h2 className="profile__h2">Compte</h2>
@@ -86,4 +76,62 @@ export function Profile() {
 
 function readerModeLabel(m: string) {
   return m === "vertical" ? "Vertical" : m === "paged" ? "Page à page" : "Double page";
+}
+
+type GwState = { kind: "idle" | "testing" | "ok" | "err"; msg?: string };
+
+/* Reading gateway: paste the URL of a deployed Tsuku gateway. With it, real
+   French scans load reliably (the gateway fetches them server-side). Without
+   it, integrated reading is best-effort and may be blocked by your network. */
+function GatewaySection() {
+  const gatewayUrl = useStore((s) => s.gatewayUrl);
+  const setGateway = useStore((s) => s.setGateway);
+  const [url, setUrl] = useState(gatewayUrl);
+  const [st, setSt] = useState<GwState>({ kind: "idle" });
+
+  async function test(u: string) {
+    const base = u.trim().replace(/\/+$/, "");
+    if (!base) { setSt({ kind: "err", msg: "Entre une URL" }); return; }
+    setSt({ kind: "testing" });
+    try {
+      const h = await fetch(`${base}/`).then((r) => r.json());
+      if (!h?.ok) throw new Error("réponse inattendue");
+      const s = await fetch(`${base}/md/manga?limit=1&includedTags[]=`).then((r) => r.json()).catch(() => null);
+      const works = s && (s.data || s.result);
+      setSt({ kind: "ok", msg: works ? "Passerelle OK — MangaDex joignable" : "Passerelle joignable" });
+      setGateway(base);
+    } catch (e) {
+      setSt({ kind: "err", msg: "Injoignable — vérifie l'URL et le déploiement" });
+    }
+  }
+
+  return (
+    <section className="profile__section">
+      <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Passerelle de lecture</h2>
+      <p className="profile__muted profile__sub">
+        Pour lire de vrais scans FR de façon fiable, déploie la passerelle Tsuku (dossier
+        <code> gateway/</code>, ~2 min, gratuit) et colle son URL ici. Sans elle, la lecture
+        intégrée est au mieux best-effort et peut être bloquée par ton réseau.
+      </p>
+      <div className="gw">
+        <input
+          className="gw__input"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://tsuku-gateway.xxx.workers.dev"
+          aria-label="URL de la passerelle"
+          autoCapitalize="none" autoCorrect="off" spellCheck={false}
+        />
+        <button className="btn btn--primary gw__test" onClick={() => test(url)} disabled={st.kind === "testing"}>
+          {st.kind === "testing" ? "Test…" : "Tester & enregistrer"}
+        </button>
+      </div>
+      {st.kind === "ok" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> {st.msg}</p>}
+      {st.kind === "err" && <p className="gw__status gw__status--err"><CloseIcon width={15} height={15} /> {st.msg}</p>}
+      {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Active : {gatewayUrl}</p>}
+      <a className="gw__guide" href="https://github.com/ndiayetaha918-ux/Tsukuscans/blob/claude/tsuki-scans-pwa-nirbqo/gateway/README.md" target="_blank" rel="noopener noreferrer">
+        Guide de déploiement (Cloudflare / Deno) ↗
+      </a>
+    </section>
+  );
 }

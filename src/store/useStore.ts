@@ -49,6 +49,7 @@ interface State {
   progress: Record<string, ProgressEntry>;
   reader: ReaderSettings;
   workReader: Record<string, WorkReader>;
+  gatewayUrl: string;
 
   // transient — the colour currently lighting the room
   ambientColor?: string;
@@ -63,6 +64,7 @@ interface State {
   updateReader(patch: Partial<ReaderSettings>): void;
   setWorkReader(id: string, patch: Partial<WorkReader>): void;
   setAmbient(color?: string, id?: string): void;
+  setGateway(url: string): void;
   resetAll(): void;
 }
 
@@ -79,6 +81,7 @@ export const useStore = create<State>()(
       progress: {},
       reader: DEFAULT_READER,
       workReader: {},
+      gatewayUrl: "",
       ambientColor: undefined,
       ambientId: undefined,
 
@@ -109,6 +112,8 @@ export const useStore = create<State>()(
 
       setAmbient: (color, id) => set({ ambientColor: color, ambientId: id }),
 
+      setGateway: (url) => set({ gatewayUrl: url.trim().replace(/\/+$/, "") }),
+
       resetAll: () =>
         set({
           onboarded: false, auth: null, displayName: null, picks: [], favorites: [],
@@ -127,6 +132,7 @@ export const useStore = create<State>()(
         progress: s.progress,
         reader: s.reader,
         workReader: s.workReader,
+        gatewayUrl: s.gatewayUrl,
       }),
       onRehydrateStorage: () => (state) => state?.setHydrated(),
     },

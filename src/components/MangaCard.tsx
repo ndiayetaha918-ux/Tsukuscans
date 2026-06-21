@@ -6,12 +6,10 @@ import "./MangaCard.css";
 export function MangaCard({
   manga,
   width,
-  compat,
   showTitle = true,
 }: {
   manga: Manga;
   width?: number;
-  compat?: number;
   showTitle?: boolean;
 }) {
   const style = {
@@ -28,7 +26,6 @@ export function MangaCard({
       <span className="mcard__glow" aria-hidden="true" />
       <div className="mcard__poster">
         <Cover manga={manga} shape="thumb" />
-        {compat != null && <span className="mcard__compat">{compat}%</span>}
       </div>
       {showTitle && (
         <div className="mcard__meta">

@@ -7,12 +7,12 @@
    All colour in OKLCH.
    ============================================================ */
 :root {
-  /* — Surface: warm ink, never flat digital black — */
-  --bg: oklch(0.055 0.006 40);
-  --bg-deep: oklch(0.028 0.005 40);
-  --surface-1: oklch(0.095 0.008 42);
-  --surface-2: oklch(0.135 0.01 44);
-  --surface-3: oklch(0.18 0.012 44);
+  /* — Surface: neutral ink. All colour comes from content (LightField). — */
+  --bg: oklch(0.05 0 0);
+  --bg-deep: oklch(0.022 0 0);
+  --surface-1: oklch(0.095 0.004 270);
+  --surface-2: oklch(0.135 0.005 270);
+  --surface-3: oklch(0.18 0.006 270);
   --hairline: oklch(1 0 0 / 0.08);
   --hairline-strong: oklch(1 0 0 / 0.14);
 

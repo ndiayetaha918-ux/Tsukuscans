@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/probe-mangadex.mjs"
       - "scripts/probe-cors.mjs"
+      - "scripts/probe-proxies.mjs"
       - "gateway/**"
       - ".github/workflows/probe.yml"
   workflow_dispatch:
@@ -20,6 +21,8 @@ jobs:
           node-version: "20"
       - name: CORS reality check (decides if a gateway is even needed)
         run: node scripts/probe-cors.mjs
+      - name: Public CORS proxies — is zero-deploy reading viable?
+        run: node scripts/probe-proxies.mjs
       - name: Probe MangaDex (FR + EN, chapters + page images)
         run: node scripts/probe-mangadex.mjs
       - name: Gateway test against real MangaDex (proves reading path)

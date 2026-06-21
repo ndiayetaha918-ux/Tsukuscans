@@ -4,10 +4,9 @@ import { ckUrl, imgUrl, getJSON } from "./net";
 /* Comick reading source (colour scans + French teams). Routes through the
    gateway when configured, else best-effort. Defensive parsing. */
 
-const CK = "https://api.comick.fun";
 const IMG = "https://meo.comick.pictures";
 
-const ckGet = <T>(path: string) => getJSON<T>(ckUrl(path), `${CK}/${path}`);
+const ckGet = <T>(path: string) => getJSON<T>(ckUrl(path));
 
 interface CSearch { hid?: string; title?: string }
 interface CChapter { hid: string; chap: string | null; title: string | null; lang: string; group_name?: string[] | null; created_at?: string }

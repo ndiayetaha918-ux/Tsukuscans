@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getManga } from "@/lib/anilist";
 import { findChapters, getPages } from "@/lib/readerSource";
+import { NoGatewayError } from "@/lib/net";
 import { useAsync } from "@/lib/useAsync";
 import { useStore, type AutoSpeed, type ReaderMode } from "@/store/useStore";
 import { ChevronLeft, ChevronRight, SettingsIcon, PlayIcon, CloseIcon, CheckIcon } from "@/components/Icons";
@@ -189,13 +190,39 @@ export function Reader() {
     return () => window.removeEventListener("keydown", onKey);
   }, [page, reader.mode, settingsOpen, goToPage, navigate, id]);
 
+  // Reading isn't configured yet → guide the user to turn it on (1 min, free),
+  // instead of an infinite spinner or a vague error. Honest about the why.
+  if (chapters.error instanceof NoGatewayError) {
+    return (
+      <div className="reader-setup">
+        <span className="reader-setup__kanji" aria-hidden="true">読</span>
+        <h2>Active la lecture</h2>
+        <p>
+          Pour lire de vrais scans FR en haute qualité, Tsuku a besoin d'une petite
+          passerelle gratuite — une fois, en ~1&nbsp;minute. Sans elle, le navigateur
+          ne peut pas récupérer les chapitres (les sources ne l'autorisent pas
+          directement).
+        </p>
+        <ol className="reader-setup__steps">
+          <li>Ouvre <strong>Profil → Passerelle de lecture</strong>.</li>
+          <li>Suis le lien de déploiement (Cloudflare/Deno, gratuit) et copie l'URL.</li>
+          <li>Colle l'URL, teste, et reviens lire. C'est mémorisé.</li>
+        </ol>
+        <div className="reader-setup__cta">
+          <button className="btn btn--primary" onClick={() => navigate("/profile")}>Configurer la passerelle</button>
+          <button className="btn btn--ghost" onClick={() => navigate(`/title/${id}`)}>Plus tard</button>
+        </div>
+      </div>
+    );
+  }
+
   if (chapters.error || (chapters.data && chapters.data.length === 0)) {
     return (
       <div className="reader-missing">
-        <p>Lecture intégrée indisponible (source injoignable).</p>
+        <p>Ce titre n'a pas de chapitres lisibles via nos sources pour le moment.</p>
         <div style={{ display: "flex", gap: "var(--s-3)" }}>
           {manga.data?.title && (
-            <a className="btn btn--primary" href={`https://mangadex.org/search?q=${encodeURIComponent(manga.data.title)}`} target="_blank" rel="noopener noreferrer">Lire sur MangaDex ↗</a>
+            <a className="btn btn--primary" href={`https://mangadex.org/search?q=${encodeURIComponent(manga.data.title)}`} target="_blank" rel="noopener noreferrer">Chercher sur MangaDex ↗</a>
           )}
           <button className="btn btn--ghost" onClick={() => navigate(`/title/${id}`)}>Retour</button>
         </div>

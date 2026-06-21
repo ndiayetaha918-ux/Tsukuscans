@@ -12,7 +12,18 @@ lecture → Tester & enregistrer**.
 
 ---
 
-## Option A — Cloudflare Workers (recommandé, gratuit, rapide)
+## Option A — Deno Deploy Playground (le plus simple, ~1 min, gratuit)
+
+Aucun CLI, aucune carte : tu colles un fichier, tu obtiens une URL.
+
+1. Ouvre https://dash.deno.com/new_playground et connecte-toi avec GitHub.
+2. Efface le code d'exemple et colle tout le contenu de
+   [`worker.mjs`](./worker.mjs)
+   ([version brute à copier](https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs)).
+3. Clique **Deploy**. Copie l'URL `https://<nom>.deno.dev` affichée.
+4. Colle-la dans Tsuku → Profil → Passerelle → **Tester & enregistrer**.
+
+## Option B — Cloudflare Workers (gratuit)
 
 1. Crée un compte gratuit sur https://dash.cloudflare.com (sans carte).
 2. **Workers & Pages → Create → Worker** → donne un nom (ex. `tsuku-gateway`) →
@@ -21,13 +32,6 @@ lecture → Tester & enregistrer**.
    puis **Deploy**.
 4. Ton URL est `https://tsuku-gateway.<ton-sous-domaine>.workers.dev`.
 5. Colle-la dans Tsuku (Profil → Passerelle) et teste.
-
-## Option B — Deno Deploy (gratuit)
-
-1. https://dash.deno.com → connecte-toi avec GitHub.
-2. **New Project → Deploy from GitHub** → sélectionne ce dépôt, branche
-   `claude/tsuki-scans-pwa-nirbqo`, entry point `gateway/worker.mjs`.
-3. Récupère l'URL `https://<projet>.deno.dev` et colle-la dans Tsuku.
 
 ## Test rapide
 

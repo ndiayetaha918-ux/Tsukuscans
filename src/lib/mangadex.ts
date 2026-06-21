@@ -1,13 +1,12 @@
 import type { Chapter } from "./types";
 import { mdUrl, imgUrl, getJSON } from "./net";
 
-/* MangaDex reading source. Routes through the gateway when configured (the only
-   reliable path when the network blocks MangaDex), else best-effort direct. */
+/* MangaDex reading source. Routes through the gateway (the only reliable path —
+   MangaDex's API sends no CORS header, so a browser can't call it directly). */
 
-const MD = "https://api.mangadex.org";
 const CONTENT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica";
 
-const mdGet = <T>(path: string) => getJSON<T>(mdUrl(path), `${MD}/${path}`);
+const mdGet = <T>(path: string) => getJSON<T>(mdUrl(path));
 
 interface MDList<T> { data: T[] }
 interface MDChapter {

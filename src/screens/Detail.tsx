@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getManga } from "@/lib/anilist";
 import { findChapters } from "@/lib/readerSource";
+import { NoGatewayError } from "@/lib/net";
 import { useAsync } from "@/lib/useAsync";
 import { useStore } from "@/store/useStore";
-import { buildTaste, compatibility } from "@/lib/recommend";
 import { Cover } from "@/components/Cover";
-import { CompatRing } from "@/components/CompatRing";
 import { Skeleton } from "@/components/Skeleton";
 import { PlayIcon, PlusIcon, ChevronLeft, StarIcon, HeartIcon } from "@/components/Icons";
 import "./Detail.css";
@@ -15,12 +14,9 @@ export function Detail() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
 
-  const picks = useStore((s) => s.picks);
-  const favorites = useStore((s) => s.favorites);
   const isFavorite = useStore((s) => s.isFavorite);
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const progress = useStore((s) => s.progress[id]);
-  const taste = useMemo(() => buildTaste(picks, favorites), [picks, favorites]);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
   const titles = manga.data?.searchTitles;
@@ -51,7 +47,6 @@ export function Detail() {
 
   const m = manga.data;
   const rating = m.rating;
-  const score = compatibility(m, taste);
   const fav = isFavorite(m.id);
   const chs = chapters.data ?? [];
   const ctx = m.color ? ({ ["--ctx" as string]: m.color } as React.CSSProperties) : undefined;
@@ -87,7 +82,6 @@ export function Detail() {
         <button className={`iconbtn iconbtn--lg${fav ? " is-on" : ""}`} onClick={() => toggleFavorite(m)} aria-label={fav ? "Retirer" : "Ajouter à ma liste"}>
           {fav ? <HeartIcon style={{ fill: "currentColor" }} /> : <PlusIcon />}
         </button>
-        <div className="detail__compat"><CompatRing score={score} size={54} /></div>
       </div>
 
       <div className="detail__about">
@@ -105,9 +99,14 @@ export function Detail() {
         </header>
         {chapters.loading ? (
           <div className="chlist">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} style={{ height: 58, marginBottom: 8 }} />)}</div>
+        ) : chapters.error instanceof NoGatewayError ? (
+          <div className="detail__nochap">
+            <p>Active la lecture une fois (~1&nbsp;min, gratuit) pour charger les chapitres FR.</p>
+            <Link className="btn btn--primary" to="/profile">Configurer la passerelle</Link>
+          </div>
         ) : chs.length === 0 ? (
           <div className="detail__nochap">
-            <p>Lecture intégrée indisponible pour cette œuvre (source injoignable).</p>
+            <p>Pas de chapitres lisibles via nos sources pour cette œuvre pour le moment.</p>
             <a className="btn btn--ghost" href={`https://mangadex.org/search?q=${encodeURIComponent(m.title)}`} target="_blank" rel="noopener noreferrer">
               Chercher sur MangaDex ↗
             </a>

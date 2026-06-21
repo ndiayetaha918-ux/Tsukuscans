@@ -96,9 +96,9 @@ function GatewaySection() {
     try {
       const h = await fetch(`${base}/`).then((r) => r.json());
       if (!h?.ok) throw new Error("réponse inattendue");
-      const s = await fetch(`${base}/md/manga?limit=1&includedTags[]=`).then((r) => r.json()).catch(() => null);
+      const s = await fetch(`${base}/md/manga?limit=1`).then((r) => r.json()).catch(() => null);
       const works = s && (s.data || s.result);
-      setSt({ kind: "ok", msg: works ? "Passerelle OK — MangaDex joignable" : "Passerelle joignable" });
+      setSt({ kind: "ok", msg: works ? "Passerelle OK — MangaDex joignable, lecture activée" : "Passerelle joignable" });
       setGateway(base);
     } catch (e) {
       setSt({ kind: "err", msg: "Injoignable — vérifie l'URL et le déploiement" });
@@ -109,16 +109,21 @@ function GatewaySection() {
     <section className="profile__section">
       <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Passerelle de lecture</h2>
       <p className="profile__muted profile__sub">
-        Pour lire de vrais scans FR de façon fiable, déploie la passerelle Tsuku (dossier
-        <code> gateway/</code>, ~2 min, gratuit) et colle son URL ici. Sans elle, la lecture
-        intégrée est au mieux best-effort et peut être bloquée par ton réseau.
+        Les sources de scans n'autorisent pas le navigateur à les appeler directement
+        (sécurité CORS), donc la lecture passe par une petite passerelle gratuite à
+        toi — une fois, ~1&nbsp;minute. Le plus simple :
       </p>
+      <ol className="gw__steps">
+        <li>Ouvre <a href="https://dash.deno.com/new_playground" target="_blank" rel="noopener noreferrer">Deno Deploy → New Playground ↗</a> (connexion GitHub gratuite).</li>
+        <li>Remplace le code par <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier (worker.mjs) ↗</a>, puis clique <strong>Deploy</strong>.</li>
+        <li>Copie l'URL <code>…deno.dev</code> donnée, colle-la ci-dessous, teste.</li>
+      </ol>
       <div className="gw">
         <input
           className="gw__input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://tsuku-gateway.xxx.workers.dev"
+          placeholder="https://xxxxx.deno.dev"
           aria-label="URL de la passerelle"
           autoCapitalize="none" autoCorrect="off" spellCheck={false}
         />
@@ -130,7 +135,7 @@ function GatewaySection() {
       {st.kind === "err" && <p className="gw__status gw__status--err"><CloseIcon width={15} height={15} /> {st.msg}</p>}
       {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Active : {gatewayUrl}</p>}
       <a className="gw__guide" href="https://github.com/ndiayetaha918-ux/Tsukuscans/blob/claude/tsuki-scans-pwa-nirbqo/gateway/README.md" target="_blank" rel="noopener noreferrer">
-        Guide de déploiement (Cloudflare / Deno) ↗
+        Autres options (Cloudflare, Node) & détails ↗
       </a>
     </section>
   );

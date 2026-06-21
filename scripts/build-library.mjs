@@ -18,8 +18,10 @@ const CT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erot
 const OUT = "public/library";
 
 // Tunables (kept modest to respect MangaDex rate limits and repo size).
-const TITLES = Number(process.env.LIB_TITLES || 60);   // most-followed FR titles
-const CH_PER = Number(process.env.LIB_CHAPTERS || 24); // earliest N chapters each
+// /at-home/server is limited to ~40 req/min, so page fetches are spaced ~1.6s.
+const TITLES = Number(process.env.LIB_TITLES || 40);   // most-followed FR titles
+const CH_PER = Number(process.env.LIB_CHAPTERS || 10); // earliest N chapters each
+const AT_HOME_DELAY = Number(process.env.LIB_ATHOME_MS || 1600);
 const PAGE = 100;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -138,7 +140,7 @@ async function main() {
             files,
           });
           okChapters++;
-          await sleep(220);
+          await sleep(AT_HOME_DELAY);
         } catch (e) {
           console.log(`  ! page fetch failed ch.${c.attributes.chapter}: ${e.message}`);
         }

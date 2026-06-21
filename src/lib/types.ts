@@ -30,7 +30,12 @@ export interface Chapter {
   publishAt: string;
   group?: string;
   lang: string;
-  source: "comick" | "mangadex";
+  source: "comick" | "mangadex" | "static";
+  // For source "static": the MangaDex content hash + page filenames, pre-fetched
+  // into the library so pages can be hotlinked from uploads.mangadex.org with no
+  // live API call (zero relay, zero deploy).
+  hash?: string;
+  files?: string[];
 }
 
 /** Minimal taste record persisted from onboarding picks + behaviour. */

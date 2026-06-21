@@ -1,0 +1,61 @@
+name: Build reading library
+
+# Refreshes the static FR reading library (chapter metadata for popular titles)
+# and redeploys Pages, so users read real scans with ZERO setup. Runs daily and
+# on demand. The scraper only stores tiny metadata; page images are hotlinked
+# from uploads.mangadex.org at view time.
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/tsuki-scans-pwa-nirbqo
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+
+      - name: Refresh reading library (server-side scrape of FR metadata)
+        run: node scripts/build-library.mjs
+
+      - name: Commit library
+        run: |
+          git config user.name "tsuku-bot"
+          git config user.email "tsuku-bot@users.noreply.github.com"
+          git add public/library
+          if git diff --staged --quiet; then
+            echo "No library changes."
+          else
+            git commit -m "chore: refresh reading library"
+            git push origin HEAD:claude/tsuki-scans-pwa-nirbqo
+          fi
+
+      - name: Compute base path
+        run: echo "VITE_BASE=/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_ENV"
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

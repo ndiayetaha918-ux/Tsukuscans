@@ -19,8 +19,8 @@ export function Detail() {
   const progress = useStore((s) => s.progress[id]);
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
-  const titles = manga.data?.searchTitles;
-  const chapters = useAsync(titles?.length ? `chapters-${id}` : null, () => findChapters(titles!));
+  const chapters = useAsync(manga.data ? `chapters-${id}` : null, () =>
+    findChapters({ anilistId: id, titles: [...(manga.data!.searchTitles ?? []), manga.data!.title] }));
 
   const setAmbient = useStore((s) => s.setAmbient);
   useEffect(() => { if (manga.data) setAmbient(manga.data.color, manga.data.id); }, [manga.data, setAmbient]);
@@ -101,8 +101,10 @@ export function Detail() {
           <div className="chlist">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} style={{ height: 58, marginBottom: 8 }} />)}</div>
         ) : chapters.error instanceof NoGatewayError ? (
           <div className="detail__nochap">
-            <p>Active la lecture une fois (~1&nbsp;min, gratuit) pour charger les chapitres FR.</p>
-            <Link className="btn btn--primary" to="/profile">Configurer la passerelle</Link>
+            <p>Pas encore dans la bibliothèque hors-ligne — elle s'enrichit chaque jour. Les titres FR populaires sont lisibles directement.</p>
+            <a className="btn btn--ghost" href={`https://mangadex.org/search?q=${encodeURIComponent(m.title)}`} target="_blank" rel="noopener noreferrer">
+              Lire sur MangaDex ↗
+            </a>
           </div>
         ) : chs.length === 0 ? (
           <div className="detail__nochap">

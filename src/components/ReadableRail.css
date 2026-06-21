@@ -1,0 +1,81 @@
+.rrail {
+  margin: var(--s-3) 0 var(--s-6);
+}
+.rrail__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 0 var(--rail-gutter);
+  margin-bottom: var(--s-4);
+}
+.rrail__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+.rrail__badge {
+  font-size: 0.72rem;
+  color: var(--on-primary);
+  background: var(--primary);
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+.rrail__track {
+  display: flex;
+  gap: var(--s-4);
+  overflow-x: auto;
+  padding: 0 var(--rail-gutter) var(--s-2);
+  scroll-snap-type: x proximity;
+}
+.rrail__card {
+  flex: 0 0 auto;
+  width: 124px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rrail__art {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface-2);
+  box-shadow: var(--glow-moon);
+}
+.rrail__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-mid) var(--ease-out-quint);
+}
+.rrail__card:hover .rrail__art img { transform: scale(1.05); }
+.rrail__ph { width: 100%; height: 100%; background: var(--surface-3); }
+.rrail__chip {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--on-primary);
+  background: var(--primary);
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+}
+.rrail__name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rrail__meta {
+  font-size: 0.72rem;
+  color: var(--ink-mute);
+}

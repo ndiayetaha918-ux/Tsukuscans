@@ -6,6 +6,7 @@ import { listTrending, listRecent, listByGenre, listTopRated, GENRES } from "@/l
 import { useAsync } from "@/lib/useAsync";
 import { composeHome, type Pools } from "@/lib/compose";
 import { BlockView } from "@/components/HomeBlocks";
+import { ReadableRail } from "@/components/ReadableRail";
 import { Logo } from "@/components/Logo";
 import { Skeleton } from "@/components/Skeleton";
 import "./Home.css";
@@ -80,6 +81,8 @@ export function Home() {
         <Link to="/" aria-label="Tsuku, accueil"><Logo size={26} /></Link>
         <Link to="/profile" className="home__avatar" aria-label="Profil">{(displayName ?? "T").slice(0, 1).toUpperCase()}</Link>
       </header>
+
+      <ReadableRail />
 
       {!ready ? (
         <HomeSkeleton />

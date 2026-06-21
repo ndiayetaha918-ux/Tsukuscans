@@ -58,6 +58,24 @@ export async function libraryReady(): Promise<boolean> {
   return !!idx && idx.count > 0;
 }
 
+export interface ReadableTitle {
+  anilist: string;
+  title: string;
+  cover?: string;
+  chapters: number;
+  from: string;
+  to: string;
+}
+
+/** Titles readable right now (zero setup), navigable via their AniList id. */
+export async function readableTitles(): Promise<ReadableTitle[]> {
+  const idx = await loadIndex();
+  if (!idx) return [];
+  return idx.titles
+    .filter((t) => t.anilist)
+    .map((t) => ({ anilist: t.anilist!, title: t.title, cover: t.cover, chapters: t.chapters, from: t.from, to: t.to }));
+}
+
 /** Resolve an AniList work to a MangaDex id present in the library. */
 async function resolveId(opts: { anilistId?: string; titles?: string[] }): Promise<string | null> {
   const idx = await loadIndex();

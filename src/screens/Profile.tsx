@@ -115,16 +115,16 @@ function GatewaySection() {
         navigateur — c'est inévitable). ~2&nbsp;min, sans code :
       </p>
       <ol className="gw__steps">
-        <li>Ouvre <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener noreferrer">Cloudflare → Create Worker ↗</a> (compte gratuit), puis <strong>Deploy</strong>.</li>
-        <li><strong>Edit code</strong> : colle <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier (worker.mjs) ↗</a>, puis <strong>Deploy</strong>.</li>
-        <li>Copie l'URL <code>…workers.dev</code>, colle-la ci-dessous, teste.</li>
+        <li>Ouvre <a href="https://dash.deno.com/new_playground" target="_blank" rel="noopener noreferrer">ce lien ↗</a> et connecte-toi avec GitHub (gratuit).</li>
+        <li>Efface l'exemple, puis colle <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier ↗</a> à la place. Clique <strong>Save &amp; Deploy</strong>.</li>
+        <li>Copie l'adresse qui finit par <code>.deno.dev</code>, colle-la ci-dessous, clique Tester.</li>
       </ol>
       <div className="gw">
         <input
           className="gw__input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://tsuku-gateway.xxx.workers.dev"
+          placeholder="https://xxxxx.deno.dev"
           aria-label="URL de la passerelle"
           autoCapitalize="none" autoCorrect="off" spellCheck={false}
         />

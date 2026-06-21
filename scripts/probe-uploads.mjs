@@ -29,10 +29,12 @@ async function tryImg(label, url, headers) {
   }
 }
 
-const s = await j(`${MD}/manga?title=${encodeURIComponent("Chainsaw Man")}&limit=1&contentRating[]=safe&order[relevance]=desc`);
+const CT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica";
+const s = await j(`${MD}/manga?title=${encodeURIComponent("Chainsaw Man")}&limit=1&${CT}&order[relevance]=desc`);
 const id = s.data[0].id;
-const f = await j(`${MD}/manga/${id}/feed?translatedLanguage[]=fr&order[chapter]=asc&limit=1&includes[]=scanlation_group`);
+const f = await j(`${MD}/manga/${id}/feed?translatedLanguage[]=fr&${CT}&order[chapter]=asc&limit=1&includes[]=scanlation_group`);
 const ch = f.data[0];
+if (!ch) { console.log("no FR chapter for", id, "— aborting probe"); process.exit(0); }
 const ah = await j(`${MD}/at-home/server/${ch.id}`);
 const hash = ah.chapter.hash;
 const file = ah.chapter.data[0];

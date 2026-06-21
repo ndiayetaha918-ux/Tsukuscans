@@ -8,6 +8,7 @@ on:
       - "scripts/probe-cors.mjs"
       - "scripts/probe-proxies.mjs"
       - "scripts/probe-uploads.mjs"
+      - "scripts/probe-animesama.mjs"
       - "gateway/**"
       - ".github/workflows/probe.yml"
   workflow_dispatch:
@@ -20,6 +21,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Probe Anime-Sama (FR scans — priority source ground truth)
+        run: node scripts/probe-animesama.mjs
       - name: CORS reality check (decides if a gateway is even needed)
         run: node scripts/probe-cors.mjs
       - name: Public CORS proxies — is zero-deploy reading viable?

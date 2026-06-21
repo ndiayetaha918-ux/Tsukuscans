@@ -5,6 +5,7 @@ on:
     branches: [claude/tsuki-scans-pwa-nirbqo]
     paths:
       - "scripts/probe-mangadex.mjs"
+      - "scripts/probe-cors.mjs"
       - "gateway/**"
       - ".github/workflows/probe.yml"
   workflow_dispatch:
@@ -17,6 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: CORS reality check (decides if a gateway is even needed)
+        run: node scripts/probe-cors.mjs
       - name: Probe MangaDex (FR + EN, chapters + page images)
         run: node scripts/probe-mangadex.mjs
       - name: Gateway test against real MangaDex (proves reading path)

@@ -7,6 +7,7 @@ on:
       - "scripts/probe-mangadex.mjs"
       - "scripts/probe-cors.mjs"
       - "scripts/probe-proxies.mjs"
+      - "scripts/probe-uploads.mjs"
       - "gateway/**"
       - ".github/workflows/probe.yml"
   workflow_dispatch:
@@ -23,6 +24,8 @@ jobs:
         run: node scripts/probe-cors.mjs
       - name: Public CORS proxies — is zero-deploy reading viable?
         run: node scripts/probe-proxies.mjs
+      - name: Stable image host (uploads.mangadex.org) — zero-relay reader linchpin
+        run: node scripts/probe-uploads.mjs
       - name: Probe MangaDex (FR + EN, chapters + page images)
         run: node scripts/probe-mangadex.mjs
       - name: Gateway test against real MangaDex (proves reading path)

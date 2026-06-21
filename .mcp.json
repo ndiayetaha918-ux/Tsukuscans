@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "brightdata": {
-      "type": "sse",
-      "url": "https://mcp.brightdata.com/sse?token=${BRIGHTDATA_API_TOKEN}&groups=advanced_scraping"
-    }
-  }
-}

@@ -19,9 +19,11 @@ const OUT = "public/library";
 
 // Tunables (kept modest to respect MangaDex rate limits and repo size).
 // /at-home/server is limited to ~40 req/min, so page fetches are spaced ~1.6s.
-const TITLES = Number(process.env.LIB_TITLES || 40);   // most-followed FR titles
-const CH_PER = Number(process.env.LIB_CHAPTERS || 10); // earliest N chapters each
-const AT_HOME_DELAY = Number(process.env.LIB_ATHOME_MS || 1600);
+// Public repo → Actions minutes are free, so we can afford a longer daily run
+// for much broader coverage.
+const TITLES = Number(process.env.LIB_TITLES || 90);   // most-followed FR titles
+const CH_PER = Number(process.env.LIB_CHAPTERS || 16); // earliest N chapters each
+const AT_HOME_DELAY = Number(process.env.LIB_ATHOME_MS || 1550);
 const PAGE = 100;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

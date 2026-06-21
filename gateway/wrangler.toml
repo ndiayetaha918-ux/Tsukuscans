@@ -1,0 +1,6 @@
+name = "tsuku-gateway"
+main = "worker.mjs"
+compatibility_date = "2024-11-01"
+
+# Deploy from this folder with:  npx wrangler deploy
+# (or paste worker.mjs into the Cloudflare dashboard — no CLI needed.)

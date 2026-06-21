@@ -101,10 +101,8 @@ export function Detail() {
           <div className="chlist">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} style={{ height: 58, marginBottom: 8 }} />)}</div>
         ) : chapters.error instanceof NoGatewayError ? (
           <div className="detail__nochap">
-            <p>Pas encore dans la bibliothèque hors-ligne — elle s'enrichit chaque jour. Les titres FR populaires sont lisibles directement.</p>
-            <a className="btn btn--ghost" href={`https://mangadex.org/search?q=${encodeURIComponent(m.title)}`} target="_blank" rel="noopener noreferrer">
-              Lire sur MangaDex ↗
-            </a>
+            <p>Hors du cache hors-ligne. Active le <strong>catalogue complet</strong> une fois (passerelle gratuite) pour lire n'importe quel titre FR à la demande.</p>
+            <Link className="btn btn--primary" to="/profile">Activer le catalogue complet</Link>
           </div>
         ) : chs.length === 0 ? (
           <div className="detail__nochap">

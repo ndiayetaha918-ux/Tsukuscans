@@ -107,23 +107,24 @@ function GatewaySection() {
 
   return (
     <section className="profile__section">
-      <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Passerelle de lecture</h2>
+      <h2 className="profile__h2"><LayersIcon width={17} height={17} /> Catalogue complet</h2>
       <p className="profile__muted profile__sub">
-        Les sources de scans n'autorisent pas le navigateur à les appeler directement
-        (sécurité CORS), donc la lecture passe par une petite passerelle gratuite à
-        toi — une fois, ~1&nbsp;minute. Le plus simple :
+        Le cache hors-ligne ne couvre que quelques dizaines de titres. Pour lire
+        <strong> tout le catalogue FR à la demande</strong>, déploie une fois ta petite
+        passerelle Cloudflare gratuite (les sources bloquent les appels directs du
+        navigateur — c'est inévitable). ~2&nbsp;min, sans code :
       </p>
       <ol className="gw__steps">
-        <li>Ouvre <a href="https://dash.deno.com/new_playground" target="_blank" rel="noopener noreferrer">Deno Deploy → New Playground ↗</a> (connexion GitHub gratuite).</li>
-        <li>Remplace le code par <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier (worker.mjs) ↗</a>, puis clique <strong>Deploy</strong>.</li>
-        <li>Copie l'URL <code>…deno.dev</code> donnée, colle-la ci-dessous, teste.</li>
+        <li>Ouvre <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener noreferrer">Cloudflare → Create Worker ↗</a> (compte gratuit), puis <strong>Deploy</strong>.</li>
+        <li><strong>Edit code</strong> : colle <a href="https://raw.githubusercontent.com/ndiayetaha918-ux/Tsukuscans/claude/tsuki-scans-pwa-nirbqo/gateway/worker.mjs" target="_blank" rel="noopener noreferrer">ce fichier (worker.mjs) ↗</a>, puis <strong>Deploy</strong>.</li>
+        <li>Copie l'URL <code>…workers.dev</code>, colle-la ci-dessous, teste.</li>
       </ol>
       <div className="gw">
         <input
           className="gw__input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://xxxxx.deno.dev"
+          placeholder="https://tsuku-gateway.xxx.workers.dev"
           aria-label="URL de la passerelle"
           autoCapitalize="none" autoCorrect="off" spellCheck={false}
         />
@@ -133,9 +134,9 @@ function GatewaySection() {
       </div>
       {st.kind === "ok" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> {st.msg}</p>}
       {st.kind === "err" && <p className="gw__status gw__status--err"><CloseIcon width={15} height={15} /> {st.msg}</p>}
-      {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Active : {gatewayUrl}</p>}
+      {gatewayUrl && st.kind === "idle" && <p className="gw__status gw__status--ok"><CheckIcon width={15} height={15} /> Catalogue complet actif : {gatewayUrl}</p>}
       <a className="gw__guide" href="https://github.com/ndiayetaha918-ux/Tsukuscans/blob/claude/tsuki-scans-pwa-nirbqo/gateway/README.md" target="_blank" rel="noopener noreferrer">
-        Autres options (Cloudflare, Node) & détails ↗
+        Autres options (Deno, Node, CLI) & détails ↗
       </a>
     </section>
   );

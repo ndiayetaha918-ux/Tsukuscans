@@ -191,23 +191,24 @@ export function Reader() {
     return () => window.removeEventListener("keydown", onKey);
   }, [page, reader.mode, settingsOpen, goToPage, navigate, id]);
 
-  // Title not in the offline library yet. Reading works out of the box for the
-  // popular FR catalogue; the rest needs the optional gateway (advanced).
+  // Off-library title + no backend → point to the one thing that unlocks the
+  // WHOLE catalogue on demand, instead of a dead-end "read on MangaDex".
   if (chapters.error instanceof NoGatewayError) {
     return (
       <div className="reader-setup">
-        <span className="reader-setup__kanji" aria-hidden="true">読</span>
-        <h2>Bientôt lisible</h2>
+        <span className="reader-setup__kanji" aria-hidden="true">蔵</span>
+        <h2>Active le catalogue complet</h2>
         <p>
-          Ce titre n'est pas encore dans la bibliothèque hors-ligne de Tsuku. Les
-          titres FR populaires sont lisibles directement, sans rien installer, et
-          la bibliothèque s'enrichit chaque jour.
+          Ce titre n'est pas dans le cache hors-ligne. Pour lire <em>n'importe quel</em>
+          titre FR à la demande (tout le catalogue), Tsuku a besoin d'une petite
+          passerelle gratuite — déployée <strong>une seule fois</strong>. Le navigateur
+          seul ne peut pas récupérer les chapitres (les sources le bloquent).
         </p>
         <div className="reader-setup__cta">
+          <button className="btn btn--primary" onClick={() => navigate("/profile")}>Activer le catalogue complet</button>
           {manga.data?.title && (
-            <a className="btn btn--primary" href={`https://mangadex.org/search?q=${encodeURIComponent(manga.data.title)}`} target="_blank" rel="noopener noreferrer">Lire sur MangaDex ↗</a>
+            <a className="btn btn--ghost" href={`https://mangadex.org/search?q=${encodeURIComponent(manga.data.title)}`} target="_blank" rel="noopener noreferrer">Lire sur MangaDex ↗</a>
           )}
-          <button className="btn btn--ghost" onClick={() => navigate(`/title/${id}`)}>Retour</button>
         </div>
       </div>
     );

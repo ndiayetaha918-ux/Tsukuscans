@@ -6,6 +6,7 @@ on:
     paths:
       - "scripts/probe-gateway-live.mjs"
       - "scripts/probe-app-logic.mjs"
+      - "scripts/probe-sources-gw.mjs"
       - ".github/workflows/verify-gateway.yml"
   workflow_dispatch:
 
@@ -21,3 +22,5 @@ jobs:
         run: node scripts/probe-gateway-live.mjs
       - name: Coverage across popular titles (real scans vs external-only)
         run: node scripts/probe-app-logic.mjs
+      - name: MangaDex best-match vs Comick (does Comick fill the FR gap?)
+        run: node scripts/probe-sources-gw.mjs

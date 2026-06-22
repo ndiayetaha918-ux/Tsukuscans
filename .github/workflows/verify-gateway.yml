@@ -5,6 +5,7 @@ on:
     branches: [claude/tsuki-scans-pwa-nirbqo]
     paths:
       - "scripts/probe-gateway-live.mjs"
+      - "scripts/probe-app-logic.mjs"
       - ".github/workflows/verify-gateway.yml"
   workflow_dispatch:
 
@@ -18,3 +19,5 @@ jobs:
           node-version: "20"
       - name: Test the live gateway end to end
         run: node scripts/probe-gateway-live.mjs
+      - name: Coverage across popular titles (real scans vs external-only)
+        run: node scripts/probe-app-logic.mjs

@@ -8,10 +8,10 @@ const CONTENT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]
 
 const mdGet = <T>(path: string) => getJSON<T>(mdUrl(path));
 
-interface MDList<T> { data: T[] }
+interface MDList<T> { data: T[]; total?: number }
 interface MDChapter {
   id: string;
-  attributes: { chapter: string | null; title: string | null; pages: number; publishAt: string; translatedLanguage: string };
+  attributes: { chapter: string | null; title: string | null; pages: number; publishAt: string; translatedLanguage: string; externalUrl?: string | null };
   relationships: { type: string; attributes?: Record<string, unknown> }[];
 }
 
@@ -21,24 +21,33 @@ async function findMangaId(title: string): Promise<string | null> {
 }
 
 async function feed(id: string, lang: string): Promise<Chapter[]> {
-  const j = await mdGet<MDList<MDChapter>>(`manga/${id}/feed?translatedLanguage[]=${lang}&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=200&includes[]=scanlation_group`);
   const seen = new Set<string>();
   const out: Chapter[] = [];
-  for (const c of j.data) {
-    const num = c.attributes.chapter ?? "";
-    if (num && seen.has(num)) continue;
-    if (num) seen.add(num);
-    const group = c.relationships.find((r) => r.type === "scanlation_group");
-    out.push({
-      id: c.id,
-      chapter: num || "—",
-      title: c.attributes.title || (num ? `Chapitre ${num}` : "Oneshot"),
-      pages: c.attributes.pages,
-      publishAt: c.attributes.publishAt,
-      group: (group?.attributes?.name as string) || undefined,
-      lang: c.attributes.translatedLanguage,
-      source: "mangadex",
-    });
+  // Paginate so long series get every chapter, not just the first page.
+  for (let off = 0; off < 1000; off += 100) {
+    const j = await mdGet<MDList<MDChapter>>(`manga/${id}/feed?translatedLanguage[]=${lang}&${CONTENT}&order[volume]=asc&order[chapter]=asc&limit=100&offset=${off}&includes[]=scanlation_group`);
+    if (!j.data.length) break;
+    for (const c of j.data) {
+      // Skip external (e.g. MangaPlus) and empty chapters — they have no readable
+      // pages on the source. Filtering BEFORE dedup means a real scan-team chapter
+      // isn't shadowed by an empty external one with the same number.
+      if (!c.attributes.pages || c.attributes.externalUrl) continue;
+      const num = c.attributes.chapter ?? "";
+      if (num && seen.has(num)) continue;
+      if (num) seen.add(num);
+      const group = c.relationships.find((r) => r.type === "scanlation_group");
+      out.push({
+        id: c.id,
+        chapter: num || "—",
+        title: c.attributes.title || (num ? `Chapitre ${num}` : "Oneshot"),
+        pages: c.attributes.pages,
+        publishAt: c.attributes.publishAt,
+        group: (group?.attributes?.name as string) || undefined,
+        lang: c.attributes.translatedLanguage,
+        source: "mangadex",
+      });
+    }
+    if (j.data.length < 100) break;
   }
   return out;
 }

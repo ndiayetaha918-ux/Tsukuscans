@@ -20,6 +20,15 @@ async function findMangaId(title: string): Promise<string | null> {
   return j.data[0]?.id ?? null;
 }
 
+/** Candidate manga ids that actually have FR available, most relevant first.
+ *  This avoids matching a doujin / colored / pre-serialization variant. */
+async function frCandidates(title: string): Promise<string[]> {
+  const j = await mdGet<MDList<{ id: string }>>(
+    `manga?title=${encodeURIComponent(title)}&limit=5&${CONTENT}&availableTranslatedLanguage[]=fr&order[relevance]=desc`,
+  );
+  return j.data.map((m) => m.id);
+}
+
 async function feed(id: string, lang: string): Promise<Chapter[]> {
   const seen = new Set<string>();
   const out: Chapter[] = [];
@@ -52,13 +61,23 @@ async function feed(id: string, lang: string): Promise<Chapter[]> {
   return out;
 }
 
-/** Chapters for a title, French first then English. */
+/** Chapters for a title. Picks the FR-available entry with the MOST readable
+ *  chapters (not just the first search hit, which is often a doujin/colored
+ *  variant), French first then English. */
 export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
-  const id = await findMangaId(title);
-  if (!id) return [];
-  const fr = await feed(id, "fr");
-  if (fr.length > 0) return fr;
-  return feed(id, "en");
+  const ids = await frCandidates(title);
+  if (ids.length) {
+    let best: Chapter[] = [];
+    for (const id of ids) {
+      const fr = await feed(id, "fr");
+      if (fr.length > best.length) best = fr;
+      if (best.length >= 20) break; // clearly the real entry — stop early
+    }
+    if (best.length) return best;
+  }
+  // No FR-available candidate (or none had readable pages) → fall back to EN.
+  const id = ids[0] || (await findMangaId(title));
+  return id ? feed(id, "en") : [];
 }
 
 /** Page image URLs (proxied through the gateway when configured). */

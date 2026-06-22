@@ -38,10 +38,10 @@ export class NoGatewayError extends Error {
 export const mdUrl = (path: string) => `${gw()}/md/${path}`;
 export const ckUrl = (path: string) => `${gw()}/ck/${path}`;
 
-/** Page image URL — always DIRECT. Images load via <img>, which ignores CORS, so
- *  they never need the gateway; keeping them direct protects the gateway's
- *  bandwidth (it only ever proxies tiny JSON). */
-export const imgUrl = (u: string) => u;
+/** Page image URL — routed through the gateway. MangaDex serves a "read at
+ *  mangadex.org" placeholder when a browser hotlinks its images (wrong referer);
+ *  the gateway refetches with a mangadex.org referer, so real pages come back. */
+export const imgUrl = (u: string) => `${gw()}/img?u=${encodeURIComponent(u)}`;
 
 async function fetchJSON<T>(url: string, timeout = 9000): Promise<T> {
   const ctrl = new AbortController();

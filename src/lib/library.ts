@@ -1,4 +1,5 @@
 import type { Chapter } from "./types";
+import { imgUrl } from "./net";
 
 /* Static reading library — the zero-setup reading path.
 
@@ -108,8 +109,9 @@ export async function findStaticChapters(opts: { anilistId?: string; titles?: st
   }));
 }
 
-/** Page image URLs for a static chapter (hotlinked, CORS-exempt). */
+/** Page image URLs for a static chapter — through the gateway (mangadex.org
+ *  referer) so we get real pages, not the browser hotlink placeholder. */
 export function staticPages(chapter: Chapter): string[] {
   if (!chapter.hash || !chapter.files) return [];
-  return chapter.files.map((f) => `${UPLOADS}/data/${chapter.hash}/${f}`);
+  return chapter.files.map((f) => imgUrl(`${UPLOADS}/data/${chapter.hash}/${f}`));
 }

@@ -1,10 +1,13 @@
 import type { Chapter } from "./types";
-import { mdUrl, imgUrl, getJSON } from "./net";
+import { mdUrl, getJSON } from "./net";
 
 /* MangaDex reading source. Routes through the gateway (the only reliable path —
    MangaDex's API sends no CORS header, so a browser can't call it directly). */
 
 const CONTENT = "contentRating[]=safe&contentRating[]=suggestive&contentRating[]=erotica";
+// Stable image origin — reachable where the @Home network nodes are not, and the
+// same host the offline library uses. <img> needs no CORS, so we hit it direct.
+const UPLOADS = "https://uploads.mangadex.org";
 
 const mdGet = <T>(path: string) => getJSON<T>(mdUrl(path));
 
@@ -70,8 +73,7 @@ export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
     let best: Chapter[] = [];
     for (const id of ids) {
       const fr = await feed(id, "fr");
-      if (fr.length > best.length) best = fr;
-      if (best.length >= 20) break; // clearly the real entry — stop early
+      if (fr.length > best.length) best = fr; // always keep the most complete entry
     }
     if (best.length) return best;
   }
@@ -80,8 +82,9 @@ export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
   return id ? feed(id, "en") : [];
 }
 
-/** Page image URLs (proxied through the gateway when configured). */
+/** Page image URLs, served from the stable uploads host (loads via <img>, no CORS,
+ *  and reachable where the @Home nodes are not). */
 export async function getChapterPages(chapterId: string): Promise<string[]> {
-  const j = await mdGet<{ baseUrl: string; chapter: { hash: string; data: string[] } }>(`at-home/server/${chapterId}`);
-  return j.chapter.data.map((f) => imgUrl(`${j.baseUrl}/data/${j.chapter.hash}/${f}`));
+  const j = await mdGet<{ chapter: { hash: string; data: string[] } }>(`at-home/server/${chapterId}`);
+  return j.chapter.data.map((f) => `${UPLOADS}/data/${j.chapter.hash}/${f}`);
 }

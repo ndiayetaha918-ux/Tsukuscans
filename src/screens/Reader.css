@@ -173,6 +173,18 @@
   background: var(--bg);
 }
 
+.reader__pagefail {
+  width: min(92%, 480px);
+  margin: 4px auto;
+  padding: 28px 16px;
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-1);
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 /* ---- "Activate reading" guidance (shown when no gateway is configured) ---- */
 .reader-setup {
   position: fixed;

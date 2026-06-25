@@ -160,7 +160,8 @@ export function searchManga(q: string, limit = 30): Promise<Manga[]> {
 
 export async function getManga(id: string): Promise<Manga> {
   const query = `query($id:Int){ Media(id:$id, type:MANGA){ ${MEDIA_FIELDS} } }`;
-  const data = await gql<{ Media: AniMedia }>(query, { id: Number(id) }, `ani-media-${id}`);
+  const data = await gql<{ Media: AniMedia | null }>(query, { id: Number(id) }, `ani-media-${id}`);
+  if (!data?.Media) throw new Error("Œuvre introuvable");
   return mapMedia(data.Media);
 }
 

@@ -266,7 +266,7 @@ export function Reader() {
             <div className="reader__pages">
               {pageUrls.map((url, p) => (
                 <div className="reader__page" key={`${chapter!.id}-${p}`} ref={(el) => { pageEls.current[p] = el; }}>
-                  <img src={url} alt={`Page ${p + 1}`} loading={p < 2 ? "eager" : "lazy"} onLoad={() => onImgLoad(p)} draggable={false} />
+                  <ReaderPage url={url} index={p} eager={p < 2} onLoad={onImgLoad} />
                 </div>
               ))}
             </div>
@@ -325,3 +325,30 @@ export function Reader() {
 }
 
 function clamp(n: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, n)); }
+
+/* A page image that retries on failure (the gateway/source occasionally drops a
+   request); after a few tries it shows a tap-to-retry instead of a blank. */
+function ReaderPage({ url, index, eager, onLoad }: { url: string; index: number; eager: boolean; onLoad: (i: number) => void }) {
+  const [src, setSrc] = useState(url);
+  const [failed, setFailed] = useState(false);
+  const tries = useRef(0);
+  const bust = () => `${url}${url.includes("?") ? "&" : "?"}r=${Date.now()}`;
+  const onError = () => {
+    if (tries.current < 4) {
+      tries.current += 1;
+      setTimeout(() => setSrc(bust()), 500 * tries.current);
+    } else {
+      setFailed(true);
+    }
+  };
+  if (failed) {
+    return (
+      <button className="reader__pagefail" onClick={(e) => { e.stopPropagation(); tries.current = 0; setFailed(false); setSrc(bust()); }}>
+        Page {index + 1} — recharger
+      </button>
+    );
+  }
+  return (
+    <img src={src} alt={`Page ${index + 1}`} loading={eager ? "eager" : "lazy"} onLoad={() => onLoad(index)} onError={onError} draggable={false} />
+  );
+}

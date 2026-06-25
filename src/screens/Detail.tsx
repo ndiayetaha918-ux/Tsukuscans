@@ -28,8 +28,11 @@ export function Detail() {
   if (manga.error) {
     return (
       <div className="page detail-missing">
-        <p>Œuvre indisponible.</p>
-        <Link to="/" className="btn btn--ghost">Retour à l'accueil</Link>
+        <p>Œuvre momentanément indisponible.</p>
+        <div style={{ display: "flex", gap: "var(--s-3)" }}>
+          <button className="btn btn--primary" onClick={() => manga.reload()}>Réessayer</button>
+          <Link to="/" className="btn btn--ghost">Accueil</Link>
+        </div>
       </div>
     );
   }

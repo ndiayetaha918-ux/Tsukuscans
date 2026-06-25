@@ -120,7 +120,7 @@ export function Detail() {
                   <Link to={`/reader/${m.id}?ch=${encodeURIComponent(c.chapter)}`} className="chrow__main">
                     <span className="chrow__num">{c.chapter}</span>
                     <span className="chrow__text">
-                      <span className="chrow__title">{c.title}</span>
+                      <span className="chrow__title">{c.title}{c.color && <span className="chrow__color">Couleur</span>}</span>
                       <span className="chrow__sub">{c.pages > 0 ? `${c.pages} pages · ` : ""}{fmtDate(c.publishAt)}{c.group ? ` · ${c.group}` : ""}</span>
                     </span>
                     {current && <span className="chrow__badge">En cours</span>}

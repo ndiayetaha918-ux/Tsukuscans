@@ -23,14 +23,25 @@ async function findMangaId(title: string): Promise<string | null> {
   return j.data[0]?.id ?? null;
 }
 
-/** Candidate manga ids that actually have FR available, most relevant first.
- *  This avoids matching a doujin / colored / pre-serialization variant. */
-async function frCandidates(title: string): Promise<string[]> {
-  const j = await mdGet<MDList<{ id: string }>>(
-    `manga?title=${encodeURIComponent(title)}&limit=5&${CONTENT}&availableTranslatedLanguage[]=fr&order[relevance]=desc`,
+/** Candidate manga ids that have FR available, most relevant first, with a flag
+ *  for colourised editions. Avoids matching a lone doujin/one-shot. */
+async function frCandidates(title: string): Promise<{ id: string; colored: boolean }[]> {
+  const j = await mdGet<MDList<{ id: string; attributes: { title?: Record<string, string>; altTitles?: Record<string, string>[] } }>>(
+    `manga?title=${encodeURIComponent(title)}&limit=8&${CONTENT}&availableTranslatedLanguage[]=fr&order[relevance]=desc`,
   );
-  return j.data.map((m) => m.id);
+  return (j.data || []).map((m) => {
+    const names = [
+      ...Object.values(m.attributes.title || {}),
+      ...(m.attributes.altTitles || []).flatMap((a) => Object.values(a)),
+    ].join(" ").toLowerCase();
+    return { id: m.id, colored: /colou?r|couleur/.test(names) };
+  });
 }
+
+const chNum = (s: string): number => {
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : Number.MAX_SAFE_INTEGER;
+};
 
 async function feed(id: string, lang: string): Promise<Chapter[]> {
   const seen = new Set<string>();
@@ -64,21 +75,28 @@ async function feed(id: string, lang: string): Promise<Chapter[]> {
   return out;
 }
 
-/** Chapters for a title. Picks the FR-available entry with the MOST readable
- *  chapters (not just the first search hit, which is often a doujin/colored
- *  variant), French first then English. */
+/** Chapters for a title. MERGES the readable FR chapters of every matching entry
+ *  (normal + colourised + re-scans), deduped by chapter number, so gaps in one
+ *  edition are filled by another — and the colourised version wins when present
+ *  (the user prefers colour). */
 export async function findChaptersByTitle(title: string): Promise<Chapter[]> {
-  const ids = await frCandidates(title);
-  if (ids.length) {
-    let best: Chapter[] = [];
-    for (const id of ids) {
-      const fr = await feed(id, "fr");
-      if (fr.length > best.length) best = fr; // always keep the most complete entry
+  const cands = await frCandidates(title);
+  if (cands.length) {
+    const byNum = new Map<string, Chapter>();
+    for (const cand of cands) {
+      let fr: Chapter[];
+      try { fr = await feed(cand.id, "fr"); } catch { continue; }
+      for (const ch of fr) {
+        const tagged = { ...ch, color: cand.colored };
+        const cur = byNum.get(ch.chapter);
+        // First seen wins, EXCEPT a colour edition overrides a mono one.
+        if (!cur || (cand.colored && !cur.color)) byNum.set(ch.chapter, tagged);
+      }
     }
-    if (best.length) return best;
+    if (byNum.size) return [...byNum.values()].sort((a, b) => chNum(a.chapter) - chNum(b.chapter));
   }
   // No FR-available candidate (or none had readable pages) → fall back to EN.
-  const id = ids[0] || (await findMangaId(title));
+  const id = cands[0]?.id || (await findMangaId(title));
   return id ? feed(id, "en") : [];
 }
 

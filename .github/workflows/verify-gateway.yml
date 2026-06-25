@@ -8,6 +8,7 @@ on:
       - "scripts/probe-app-logic.mjs"
       - "scripts/probe-sources-gw.mjs"
       - "scripts/probe-images.mjs"
+      - "scripts/probe-merge.mjs"
       - ".github/workflows/verify-gateway.yml"
   workflow_dispatch:
 
@@ -27,3 +28,5 @@ jobs:
         run: node scripts/probe-sources-gw.mjs
       - name: Image path — placeholder vs real (uploads direct vs gateway)
         run: node scripts/probe-images.mjs
+      - name: Merge across entries — fills gaps + colour
+        run: node scripts/probe-merge.mjs

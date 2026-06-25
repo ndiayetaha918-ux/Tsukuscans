@@ -31,6 +31,7 @@ export interface Chapter {
   group?: string;
   lang: string;
   source: "comick" | "mangadex" | "static";
+  color?: boolean; // colorized version of this chapter
   // For source "static": the MangaDex content hash + page filenames, pre-fetched
   // into the library so pages can be hotlinked from uploads.mangadex.org with no
   // live API call (zero relay, zero deploy).

@@ -34,6 +34,28 @@ function bdZone() {
   return (typeof Deno !== "undefined" ? Deno.env.get("BD_ZONE") : process.env?.BD_ZONE) || "unblocker";
 }
 
+// Attempt a direct server-side fetch with a realistic browser UA.
+// Returns HTML text on success, null if Cloudflare blocks (non-200 or challenge page).
+async function tryDirectFetch(targetUrl) {
+  try {
+    const r = await fetch(targetUrl, {
+      headers: {
+        "User-Agent": BR_UA,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
+        "Referer": "https://anime-sama.to/",
+      },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r.ok) return null;
+    const html = await r.text();
+    if (/just a moment|cf-challenge|captcha|enable javascript/i.test(html)) return null;
+    return html;
+  } catch {
+    return null;
+  }
+}
+
 async function unlockUrl(targetUrl) {
   const token = bdToken();
   if (!token) throw new Error("BD_TOKEN not configured");
@@ -94,26 +116,43 @@ export async function handle(req) {
     }
 
     // ── anime-sama chapter list ────────────────────────────────────────────
+    // NOTE: chapter lists are now built statically by the nightly Playwright
+    // scraper (scripts/scrape-animesama.mjs → public/library/as-chapters.json).
+    // This route is kept for manual/debug use; direct fetch may be Cloudflare-blocked.
     if (p === "/as/chapters") {
       const slug = url.searchParams.get("slug");
       if (!slug) return json({ error: "missing slug" }, 400);
-      if (!bdToken()) return json({ error: "BD_TOKEN not configured" }, 503);
-      const targetUrl = `https://anime-sama.to/catalogue/${slug}/scan/fr/`;
+      const targetUrl = `https://anime-sama.to/catalogue/${slug}/scan/vf/`;
+      // Try direct fetch first (no BD cost)
+      const directHtml = await tryDirectFetch(targetUrl);
+      if (directHtml) {
+        const chapters = parseAnimeSamaChapters(directHtml, targetUrl);
+        return json({ slug, chapters, source: "anime-sama-direct" });
+      }
+      // Fallback: Bright Data
+      if (!bdToken()) return json({ error: "direct fetch blocked, BD_TOKEN not configured" }, 503);
       const r = await unlockUrl(targetUrl);
       const html = await r.text();
       const chapters = parseAnimeSamaChapters(html, targetUrl);
-      return json({ slug, chapters, source: "anime-sama" });
+      return json({ slug, chapters, source: "anime-sama-bd" });
     }
 
     // ── anime-sama page images for a given chapter URL ─────────────────────
     if (p === "/as/pages") {
       const chUrl = url.searchParams.get("url");
       if (!chUrl) return json({ error: "missing url" }, 400);
-      if (!bdToken()) return json({ error: "BD_TOKEN not configured" }, 503);
+      // Try direct fetch first (no BD cost)
+      const directHtml = await tryDirectFetch(chUrl);
+      if (directHtml) {
+        const pages = parseAnimeSamaPages(directHtml);
+        if (pages.length) return json({ url: chUrl, pages, source: "anime-sama-direct" });
+      }
+      // Fallback: Bright Data
+      if (!bdToken()) return json({ error: "direct fetch blocked and BD_TOKEN not configured" }, 503);
       const r = await unlockUrl(chUrl);
       const html = await r.text();
       const pages = parseAnimeSamaPages(html);
-      return json({ url: chUrl, pages, source: "anime-sama" });
+      return json({ url: chUrl, pages, source: "anime-sama-bd" });
     }
 
     return json({ error: "not found" }, 404);

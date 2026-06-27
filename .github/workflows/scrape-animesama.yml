@@ -1,0 +1,43 @@
+name: Scrape anime-sama chapters (nightly)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"   # 03:00 UTC every night
+  push:
+    branches: [claude/tsuki-scans-pwa-nirbqo]
+    paths:
+      - "scripts/scrape-animesama.mjs"
+      - ".github/workflows/scrape-animesama.yml"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install playwright package
+        run: npm install playwright
+
+      - name: Install Chromium browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Scrape anime-sama chapter lists
+        run: node scripts/scrape-animesama.mjs
+
+      - name: Commit updated catalogue
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/library/as-chapters.json
+          git diff --staged --quiet && echo "No changes" && exit 0
+          git commit -m "chore: update anime-sama chapter catalogue [skip ci]"
+          git push

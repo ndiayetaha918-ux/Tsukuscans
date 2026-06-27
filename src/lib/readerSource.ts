@@ -10,7 +10,7 @@ import { findStaticChapters, staticPages } from "./library";
    Priority order (all FR):
    1. Live MangaDex via gateway — full catalogue, colour editions merged
    2. Live Comick via gateway — fills gaps that MangaDex doesn't have
-   3. Anime-Sama via gateway + Bright Data (requires BD_TOKEN in Deno env)
+   3. Anime-Sama via static catalogue (built nightly by scrape-animesama.mjs)
       — used when MangaDex/Comick have <50% of the expected chapter count
    4. Static library fallback (offline / gateway down)
 

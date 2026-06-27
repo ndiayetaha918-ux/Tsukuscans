@@ -38,6 +38,9 @@ const SLUG_MAP: Record<string, string> = {
   "vagabond": "vagabond",
 };
 
+// Base domain — the site moved from .fr to .to
+export const AS_BASE = "https://anime-sama.to";
+
 function deriveSlug(title: string): string {
   const key = title.toLowerCase().trim();
   if (SLUG_MAP[key]) return SLUG_MAP[key];

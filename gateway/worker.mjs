@@ -16,7 +16,7 @@
 
 const MD = "https://api.mangadex.org";
 const CK = "https://api.comick.fun";
-const IMG_HOSTS = [/\.mangadex\.network$/, /^uploads\.mangadex\.org$/, /^meo\.comick\.pictures$/, /\.comick\.pictures$/, /^neko-sama\.fr$/, /anime-sama\.fr$/];
+const IMG_HOSTS = [/\.mangadex\.network$/, /^uploads\.mangadex\.org$/, /^meo\.comick\.pictures$/, /\.comick\.pictures$/, /^neko-sama\.fr$/, /anime-sama\.(fr|to)$/, /raw\.githubusercontent\.com$/];
 const UA = "Tsuku-Gateway/1.0 (+https://github.com/ndiayetaha918-ux/Tsukuscans)";
 const BR_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const CORS = {
@@ -98,7 +98,7 @@ export async function handle(req) {
       const slug = url.searchParams.get("slug");
       if (!slug) return json({ error: "missing slug" }, 400);
       if (!bdToken()) return json({ error: "BD_TOKEN not configured" }, 503);
-      const targetUrl = `https://anime-sama.fr/catalogue/${slug}/scan/fr/`;
+      const targetUrl = `https://anime-sama.to/catalogue/${slug}/scan/fr/`;
       const r = await unlockUrl(targetUrl);
       const html = await r.text();
       const chapters = parseAnimeSamaChapters(html, targetUrl);

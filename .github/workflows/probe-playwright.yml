@@ -1,0 +1,25 @@
+name: Probe Playwright anime-sama
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/tsuki-scans-pwa-nirbqo]
+    paths:
+      - "scripts/probe-playwright-animesama.mjs"
+      - ".github/workflows/probe-playwright.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Install playwright package
+        run: npm install playwright
+      - name: Test anime-sama.to avec Chromium headless
+        run: node scripts/probe-playwright-animesama.mjs
+        timeout-minutes: 3

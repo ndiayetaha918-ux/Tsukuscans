@@ -37,6 +37,8 @@ export class NoGatewayError extends Error {
 
 export const mdUrl = (path: string) => `${gw()}/md/${path}`;
 export const ckUrl = (path: string) => `${gw()}/ck/${path}`;
+export const asChaptersUrl = (slug: string) => `${gw()}/as/chapters?slug=${encodeURIComponent(slug)}`;
+export const asPagesUrl = (url: string) => `${gw()}/as/pages?url=${encodeURIComponent(url)}`;
 
 /** Page image URL — routed through the gateway. MangaDex serves a "read at
  *  mangadex.org" placeholder when a browser hotlinks its images (wrong referer);

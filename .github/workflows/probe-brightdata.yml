@@ -1,0 +1,22 @@
+name: Probe Bright Data zones
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/tsuki-scans-pwa-nirbqo]
+    paths:
+      - "scripts/probe-brightdata.mjs"
+      - ".github/workflows/probe-brightdata.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Discover BD zones + test Web Unlocker
+        run: node scripts/probe-brightdata.mjs
+        env:
+          BD_TOKEN: ${{ secrets.BD_TOKEN }}

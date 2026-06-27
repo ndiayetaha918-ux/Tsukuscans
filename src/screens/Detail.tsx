@@ -20,7 +20,11 @@ export function Detail() {
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
   const chapters = useAsync(manga.data ? `chapters-${id}` : null, () =>
-    findChapters({ anilistId: id, titles: [...(manga.data!.searchTitles ?? []), manga.data!.title] }));
+    findChapters({
+      anilistId: id,
+      titles: [...(manga.data!.searchTitles ?? []), manga.data!.title],
+      expectedChapters: manga.data!.chapters,
+    }));
 
   const setAmbient = useStore((s) => s.setAmbient);
   useEffect(() => { if (manga.data) setAmbient(manga.data.color, manga.data.id); }, [manga.data, setAmbient]);

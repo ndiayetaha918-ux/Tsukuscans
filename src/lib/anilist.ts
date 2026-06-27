@@ -46,6 +46,7 @@ const MEDIA_FIELDS = `
   averageScore
   popularity
   status
+  chapters
   startDate { year }
   trailer { id site }
   staff(perPage: 1, sort: [RELEVANCE]) { nodes { name { full } } }
@@ -95,6 +96,7 @@ interface AniMedia {
   averageScore: number | null;
   popularity: number | null;
   status: string | null;
+  chapters: number | null;
   startDate: { year: number | null } | null;
   trailer: { id: string | null; site: string | null } | null;
   staff: { nodes: { name: { full: string | null } }[] } | null;
@@ -123,6 +125,7 @@ function mapMedia(m: AniMedia): Manga {
     color: m.coverImage.color || undefined,
     trailer: m.trailer?.id && m.trailer.site ? { id: m.trailer.id, site: m.trailer.site } : undefined,
     searchTitles: [m.title.english, m.title.romaji, m.title.native].filter((t): t is string => !!t),
+    chapters: m.chapters ?? undefined,
   };
 }
 

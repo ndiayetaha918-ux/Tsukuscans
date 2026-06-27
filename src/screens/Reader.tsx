@@ -29,7 +29,11 @@ export function Reader() {
 
   const manga = useAsync(`manga-${id}`, () => getManga(id));
   const chapters = useAsync(manga.data ? `chapters-${id}` : null, () =>
-    findChapters({ anilistId: id, titles: [...(manga.data!.searchTitles ?? []), manga.data!.title] }));
+    findChapters({
+      anilistId: id,
+      titles: [...(manga.data!.searchTitles ?? []), manga.data!.title],
+      expectedChapters: manga.data!.chapters,
+    }));
 
   const [chapterIndex, setChapterIndex] = useState<number | null>(null);
   const [page, setPage] = useState(0);

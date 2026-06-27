@@ -19,6 +19,7 @@ export interface Manga {
   color?: string; // dominant cover colour (hex) for placeholders
   trailer?: { id: string; site: string }; // e.g. { id, site: "youtube" }
   searchTitles?: string[]; // english / romaji / native — for reading-source lookup
+  chapters?: number; // total chapter count from AniList (for gap detection)
   contentRating?: string;
 }
 
@@ -30,7 +31,7 @@ export interface Chapter {
   publishAt: string;
   group?: string;
   lang: string;
-  source: "comick" | "mangadex" | "static";
+  source: "comick" | "mangadex" | "static" | "animesama";
   color?: boolean; // colorized version of this chapter
   // For source "static": the MangaDex content hash + page filenames, pre-fetched
   // into the library so pages can be hotlinked from uploads.mangadex.org with no
